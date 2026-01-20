@@ -168,6 +168,31 @@
             <template v-else-if="field.type === 'checkbox'">
               <input type="checkbox" v-model="formState.fields[field.key]" />
             </template>
+            <template v-else-if="field.type === 'events-table'">
+              <div class="events-table-wrapper">
+                <table class="events-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Key</th>
+                      <th>Icon</th>
+                      <th>Color</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(event, idx) in formState.fields[field.key]" :key="idx">
+                      <td><input type="text" v-model="event.name" placeholder="Onayla" /></td>
+                      <td><input type="text" v-model="event.key" placeholder="approve" /></td>
+                      <td><input type="text" v-model="event.icon" placeholder="check" /></td>
+                      <td><input type="color" v-model="event.color" /></td>
+                      <td><button class="icon-btn delete" @click="removeEvent(field.key, idx)">🗑️</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button type="button" class="secondary small" @click="addEvent(field.key)">+ Add Event</button>
+              </div>
+            </template>
             <template v-else>
               <input :type="field.type" v-model="formState.fields[field.key]" />
             </template>
@@ -231,6 +256,7 @@ const fieldDefs = {
     { key: 'assignment-value', label: 'Atama Değeri', type: 'text' },
     { key: 'form-key', label: 'Form Key', type: 'text' },
     { key: 'priority', label: 'Öncelik', type: 'text' },
+    { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
     { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
     { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
     { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
@@ -243,6 +269,7 @@ const fieldDefs = {
     { key: 'completion-strategy', label: 'Tamamlama Stratejisi', type: 'text' },
     { key: 'form-key', label: 'Form Key', type: 'text' },
     { key: 'priority', label: 'Öncelik', type: 'text' },
+    { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
     { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
     { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
     { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
@@ -535,10 +562,35 @@ const loadCustomFields = (element, taskKey) => {
   const attrs = (rawElement.businessObject && rawElement.businessObject.$attrs) || {};
   const def = fieldDefs[taskKey] || [];
   return def.reduce((acc, field) => {
-    const val = attrs[`data-${field.key}`];
-    acc[field.key] = field.type === 'checkbox' ? val === 'true' || val === true : val || '';
+    let val = attrs[`data-${field.key}`];
+    
+    if (field.type === 'checkbox') {
+      acc[field.key] = val === 'true' || val === true;
+    } else if (field.type === 'events-table') {
+      // JSON parse for events
+      try {
+        acc[field.key] = val ? JSON.parse(val) : [];
+      } catch (e) {
+        acc[field.key] = [];
+      }
+    } else {
+      acc[field.key] = val || '';
+    }
     return acc;
   }, {});
+};
+
+const addEvent = (fieldKey) => {
+  if (!formState.value.fields[fieldKey]) {
+    formState.value.fields[fieldKey] = [];
+  }
+  formState.value.fields[fieldKey].push({ name: '', key: '', icon: '', color: '#000000' });
+};
+
+const removeEvent = (fieldKey, idx) => {
+  if (formState.value.fields[fieldKey]) {
+    formState.value.fields[fieldKey].splice(idx, 1);
+  }
 };
 
 const saveModal = () => {
@@ -554,10 +606,18 @@ const saveModal = () => {
   (fieldDefs[taskKey] || []).forEach((field) => {
     const key = `data-${field.key}`;
     let val = fields[field.key];
+    
     if (field.type === 'checkbox') {
       val = val ? 'true' : 'false';
+    } else if (field.type === 'events-table') {
+      val = val && val.length > 0 ? JSON.stringify(val) : '';
     }
+    
     props[key] = val ?? '';
+    // Also set property on businessObject directly for immediate access if needed (optional but good for syncing)
+    if (field.key === 'customOutputEvents') {
+      element.businessObject.customOutputEvents = val;
+    }
   });
 
   modeling.updateProperties(element, props);

@@ -41,21 +41,24 @@ export default class CustomContextPad extends ContextPadProvider {
 
     // Check for custom outputs logic
     if (this._isTask(element)) {
-      const outputs = this._getOutputs(element.businessObject);
+      const events = this._getOutputs(element.businessObject);
 
-      if (outputs && outputs.length > 0) {
+      if (events && events.length > 0) {
         // If Custom Outputs exist: Remove standard Connect and Append
         delete actions.connect;
 
-        // Append custom connections
-        outputs.forEach((label) => {
-          actions[`connect.${label}`] = {
+        // Append custom connections for each event
+        events.forEach((event) => {
+          const eventName = typeof event === 'string' ? event : event.name;
+          const eventKey = typeof event === 'string' ? event : event.key;
+
+          actions[`connect.${eventKey || eventName}`] = {
             group: 'connect',
             className: 'bpmn-icon-connection-multi',
-            title: this.translate(label),
+            title: this.translate(eventName),
             action: {
-              click: (event) => this._startConnect(event, element, label),
-              dragstart: (event) => this._startConnect(event, element, label)
+              click: (clickEvent) => this._startConnect(clickEvent, element, event),
+              dragstart: (dragEvent) => this._startConnect(dragEvent, element, event)
             }
           };
         });
@@ -101,8 +104,18 @@ export default class CustomContextPad extends ContextPadProvider {
     this.create.start(event, shape, element);
   }
 
-  _startConnect(event, element, label) {
-    this.connect.start(event, element, { label });
+  _startConnect(event, element, eventData) {
+    // eventData can be a string (legacy) or an object { name, key, icon, color }
+    const hints = typeof eventData === 'string'
+      ? { label: eventData }
+      : {
+        label: eventData.name,
+        eventKey: eventData.key,
+        eventIcon: eventData.icon,
+        eventColor: eventData.color
+      };
+
+    this.connect.start(event, element, hints);
   }
 
   _isTask(element) {

@@ -528,3 +528,76 @@ body {
   border-radius: 4px;
   border: 1px solid #cbd5e1;
 }
+
+/* Events Table Styles */
+.events-table-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.events-table thead {
+  background: #f8fafc;
+}
+
+.events-table th {
+  padding: 8px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.events-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.events-table input[type="text"] {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.events-table input[type="color"] {
+  width: 40px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: transform 0.15s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.icon-btn.delete:hover {
+  filter: brightness(0.8);
+}
+
+button.secondary.small {
+  padding: 6px 10px;
+  font-size: 13px;
+  background: white;
+}
+
+button.secondary.small:hover {
+  background: #f8fafc;
+}
+

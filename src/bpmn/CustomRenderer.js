@@ -593,7 +593,23 @@ export default class CustomRenderer extends BaseRenderer {
     const path = connection.querySelector('path');
     if (path) {
       path.setAttribute('stroke-width', 2);
-      path.setAttribute('stroke', '#94a3b8');
+
+      // Check for custom event color from DI or business object
+      let customColor = null;
+
+      // First check DI element for stroke color
+      if (element.di && element.di.stroke) {
+        customColor = element.di.stroke;
+      }
+
+      // Fallback to business object attribute
+      if (!customColor && element.businessObject) {
+        const bo = element.businessObject;
+        customColor = bo.get?.('data-event-color') || bo.$attrs?.['data-event-color'];
+      }
+
+      // Apply custom color or default
+      path.setAttribute('stroke', customColor || '#94a3b8');
     }
     return connection;
   }
