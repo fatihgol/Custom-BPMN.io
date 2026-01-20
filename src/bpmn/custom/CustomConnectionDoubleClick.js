@@ -12,12 +12,15 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
         eventBus.on('element.dblclick', 1500, (event) => {
             const element = event.element;
 
-            // Only handle connections with event metadata
+            // Only handle connections with event metadata AND correct type
             if (element.type === 'bpmn:SequenceFlow' && element.source) {
+                const connectionType = element.businessObject.get?.('data-connection-type') ||
+                    element.businessObject.$attrs?.['data-connection-type'];
                 const eventKey = element.businessObject.get?.('data-event-key') ||
                     element.businessObject.$attrs?.['data-event-key'];
 
-                if (eventKey) {
+                // Check both eventKey AND connection type
+                if (eventKey && connectionType === 'event') {
                     event.preventDefault();
                     event.stopPropagation();
                     this._showEventSwitchPopup(element);
