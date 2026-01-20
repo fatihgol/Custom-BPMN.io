@@ -223,10 +223,12 @@ export default class CustomContextPad extends ContextPadProvider {
     );
 
     if (raw) {
-      if (Array.isArray(raw)) return raw;
+      if (Array.isArray(raw) && raw.length > 0) return raw;
       try {
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : null;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
       } catch (err) {
         // Fallthrough to defaults if parse fails
       }
