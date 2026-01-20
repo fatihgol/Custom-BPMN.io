@@ -204,14 +204,35 @@ export default class CustomContextPad extends ContextPadProvider {
 
   _getOutputs(bo) {
     const raw = bo?.customOutputEvents || bo?.$attrs?.customOutputEvents;
-    if (!raw) return null;
-    if (Array.isArray(raw)) return raw;
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : null;
-    } catch (err) {
-      return null;
+
+    // Check if this is a UserTask or UserGroupTask (based on attributes or type)
+    const isUserTask = bo && (
+      bo.$type === 'bpmn:UserTask' ||
+      (bo.$attrs && bo.$attrs['data-task-type'] === 'userTask')
+    );
+    const isUserGroupTask = bo && (
+      (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
+    );
+
+    if (raw) {
+      if (Array.isArray(raw)) return raw;
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : null;
+      } catch (err) {
+        // Fallthrough to defaults if parse fails
+      }
     }
+
+    // Return default events for UserTask and UserGroupTask if no custom events found
+    if (isUserTask || isUserGroupTask) {
+      return [
+        { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
+        { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
+      ];
+    }
+
+    return null;
   }
 }
 
