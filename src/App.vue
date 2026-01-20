@@ -573,6 +573,14 @@ const loadCustomFields = (element, taskKey) => {
       } catch (e) {
         acc[field.key] = [];
       }
+      
+      // Add default events for UserTask and UserGroupTask if empty
+      if ((taskKey === 'userTask' || taskKey === 'userGroupTask') && acc[field.key].length === 0) {
+        acc[field.key] = [
+          { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
+          { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
+        ];
+      }
     } else {
       acc[field.key] = val || '';
     }

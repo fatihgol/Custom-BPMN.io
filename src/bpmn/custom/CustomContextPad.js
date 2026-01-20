@@ -214,6 +214,22 @@ export default class CustomContextPad extends ContextPadProvider {
     }
   }
 
+  _getNextAvailableEvent(element, events) {
+    // Get already used events
+    const usedEvents = this._getUsedEvents(element);
+
+    // Find first unused event (queue mechanism)
+    for (const event of events) {
+      const eventKey = typeof event === 'string' ? event : event.key;
+      if (!usedEvents.includes(eventKey)) {
+        return event;
+      }
+    }
+
+    // All events used, return null
+    return null;
+  }
+
   _isTask(element) {
     return isAny(element, ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask', 'bpmn:SendTask', 'bpmn:ExclusiveGateway']);
   }
