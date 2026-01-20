@@ -40,13 +40,26 @@ export default class CustomContextPad extends ContextPadProvider {
     keysToRemove.forEach(key => delete actions[key]);
 
     // Check for custom outputs logic - use SINGLE connect button with queue
+    // Check for custom outputs logic - use SINGLE connect button with queue
     if (this._isTask(element)) {
       const events = this._getOutputs(element.businessObject);
 
-      if (events && events.length > 0) {
-        // Remove standard Connect
-        delete actions.connect;
+      // Determine if we should enforce custom behavior (is UserTask or UserGroupTask)
+      const bo = element.businessObject;
+      const isUserTask = bo && (
+        bo.$type === 'bpmn:UserTask' ||
+        (bo.$attrs && bo.$attrs['data-task-type'] === 'userTask')
+      );
+      const isUserGroupTask = bo && (
+        (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
+      );
 
+      // ALWAYS remove standard connect for UserTask/UserGroupTask or if events exist
+      if (isUserTask || isUserGroupTask || (events && events.length > 0)) {
+        delete actions.connect;
+      }
+
+      if (events && events.length > 0) {
         // Get next available event from queue
         const nextEvent = this._getNextAvailableEvent(element, events);
 
@@ -64,7 +77,6 @@ export default class CustomContextPad extends ContextPadProvider {
             }
           };
         }
-        // If nextEvent is null, no connect button shown (all events used)
 
         // We do NOT add append tasks here because user flow is strictly controlled by outputs
         return actions;
