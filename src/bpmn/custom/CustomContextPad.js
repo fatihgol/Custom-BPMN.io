@@ -39,6 +39,41 @@ export default class CustomContextPad extends ContextPadProvider {
     ];
     keysToRemove.forEach(key => delete actions[key]);
 
+    // Check if this is a connection with event metadata - allow switching events
+    if (element.type === 'bpmn:SequenceFlow' && element.source) {
+      const source = element.source;
+      const events = this._getOutputs(source.businessObject);
+
+      if (events && events.length > 0) {
+        const currentEventKey = element.businessObject.get?.('data-event-key') ||
+          element.businessObject.$attrs?.['data-event-key'];
+
+        // Show available events to switch to (excluding current)
+        events.forEach((event) => {
+          const eventName = typeof event === 'string' ? event : event.name;
+          const eventKey = typeof event === 'string' ? event : event.key;
+
+          // Skip if this is the current event
+          if (eventKey === currentEventKey) return;
+
+          // Check if this event is already used by another connection
+          const usedEvents = this._getUsedEvents(source);
+          if (usedEvents.includes(eventKey)) return;
+
+          actions[`switch.${eventKey}`] = {
+            group: 'edit',
+            className: 'bpmn-icon-connection-multi',
+            title: this.translate(`Switch to: ${eventName}`),
+            action: {
+              click: () => this._switchConnectionEvent(element, event)
+            }
+          };
+        });
+
+        return actions;
+      }
+    }
+
     // Check for custom outputs logic
     if (this._isTask(element)) {
       const events = this._getOutputs(element.businessObject);
@@ -135,6 +170,48 @@ export default class CustomContextPad extends ContextPadProvider {
     });
 
     return usedEventKeys;
+  }
+
+  _switchConnectionEvent(connection, newEvent) {
+    const modeling = this.modeling || this.injector.get('modeling');
+    const canvas = this.canvas || this.injector.get('canvas');
+
+    const eventName = typeof newEvent === 'string' ? newEvent : newEvent.name;
+    const eventKey = typeof newEvent === 'string' ? newEvent : newEvent.key;
+    const eventColor = typeof newEvent === 'object' ? newEvent.color : null;
+    const eventIcon = typeof newEvent === 'object' ? newEvent.icon : null;
+
+    const props = {
+      name: eventName,
+      'data-event-key': eventKey
+    };
+
+    if (eventIcon) {
+      props['data-event-icon'] = eventIcon;
+    }
+
+    if (eventColor) {
+      props['data-event-color'] = eventColor;
+
+      // Update DI color
+      const di = connection.di;
+      if (di) {
+        di.set('stroke', eventColor);
+      }
+    }
+
+    modeling.updateProperties(connection, props);
+
+    // Force visual update
+    if (eventColor) {
+      const gfx = canvas.getGraphics(connection);
+      if (gfx) {
+        const path = gfx.querySelector('path');
+        if (path) {
+          path.setAttribute('stroke', eventColor);
+        }
+      }
+    }
   }
 
   _isTask(element) {

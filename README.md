@@ -18,6 +18,10 @@ Uygulama varsayılan olarak `http://localhost:5173` adresinde çalışır.
 - Başlangıç diyagramı hazır gelir, XML içe/dışa aktarma butonları mevcuttur.
 - Modal üzerinden çift tıklayarak dokümandaki tüm `data-*` alanları düzenleyebilirsiniz; alanlar tip bazlı gösterilir.
 
+## Ekran Görüntüsü
+
+![BPMN Editör](./canvas.png)
+
 ## Notlar
 
 - Bağımlılıkları indirmek için internet gerekir; çevrimdışı çalışacaksanız paketleri önceden temin edin.
