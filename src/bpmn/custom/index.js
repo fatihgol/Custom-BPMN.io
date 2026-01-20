@@ -6,8 +6,8 @@ import CustomRules from './CustomRules';
 
 export default {
   __depends__: [contextPadModule],
-  __init__: ['customContextPad', 'customConnectionBehavior', 'customConnectionDoubleClick', 'customRules'],
-  customContextPad: ['type', CustomContextPad],
+  __init__: ['contextPadProvider', 'customConnectionBehavior', 'customConnectionDoubleClick', 'customRules'],
+  contextPadProvider: ['type', CustomContextPad],
   customConnectionBehavior: ['type', CustomConnectionBehavior],
   customConnectionDoubleClick: ['type', CustomConnectionDoubleClick],
   customRules: ['type', CustomRules]
