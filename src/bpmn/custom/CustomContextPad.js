@@ -121,6 +121,22 @@ export default class CustomContextPad extends ContextPadProvider {
     this.connect.start(event, element, { label });
   }
 
+  _getUsedEvents(element) {
+    // Get all outgoing connections from this element
+    const outgoing = element.outgoing || [];
+    const usedEventKeys = [];
+
+    outgoing.forEach(connection => {
+      const eventKey = connection.businessObject.get?.('data-event-key') ||
+        connection.businessObject.$attrs?.['data-event-key'];
+      if (eventKey) {
+        usedEventKeys.push(eventKey);
+      }
+    });
+
+    return usedEventKeys;
+  }
+
   _isTask(element) {
     return isAny(element, ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask', 'bpmn:SendTask', 'bpmn:ExclusiveGateway']);
   }
