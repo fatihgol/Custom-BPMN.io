@@ -110,18 +110,26 @@ export default class CustomContextPad extends ContextPadProvider {
   _startConnect(event, element, eventData) {
     // Store event metadata temporarily for use in CustomConnectionBehavior
     // We can't pass custom properties directly to connect.start() as it breaks the preview
+
+    // Only pass the label to avoid breaking connection preview
+    const label = typeof eventData === 'string' ? eventData : eventData.name;
+
     if (typeof eventData === 'object' && eventData.color) {
       // Store metadata on the element temporarily so CustomConnectionBehavior can access it
       element._pendingEventMetadata = {
+        label: label, // Critical: pass label here for CustomConnectionBehavior
         eventKey: eventData.key,
         eventIcon: eventData.icon,
         eventColor: eventData.color
       };
+    } else if (typeof eventData === 'string') {
+      element._pendingEventMetadata = {
+        label: eventData
+      };
     }
 
-    // Only pass the label to avoid breaking connection preview
-    const label = typeof eventData === 'string' ? eventData : eventData.name;
-    this.connect.start(event, element, { label });
+    // Call connect.start without hints to avoid SVG path errors
+    this.connect.start(event, element);
   }
 
   _getUsedEvents(element) {
