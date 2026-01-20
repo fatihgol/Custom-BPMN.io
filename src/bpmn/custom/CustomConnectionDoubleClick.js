@@ -199,22 +199,42 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
         );
 
-        if (raw) {
-            if (Array.isArray(raw)) return raw;
-            try {
-                const parsed = JSON.parse(raw);
-                return Array.isArray(parsed) ? parsed : null;
-            } catch (err) {
-                // Fallthrough to defaults if parse fails
-            }
-        }
-
         // Return default events for UserTask and UserGroupTask if no custom events found
+        let events = null;
         if (isUserTask || isUserGroupTask) {
-            return [
-                { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
-                { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
-            ];
+            if (raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        events = parsed;
+                    }
+                } catch (e) { }
+            }
+
+            if (!events) {
+                events = [
+                    { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
+                    { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
+                ];
+            }
+
+            // Check for Timeout Event
+            const timeoutEnabled = bo.$attrs && (bo.$attrs['data-timeout-enabled'] === 'true' || bo.$attrs['data-timeout-enabled'] === true);
+            const timeoutAction = bo.$attrs && bo.$attrs['data-timeout-action'];
+
+            if (timeoutEnabled && timeoutAction === 'event') {
+                // Check if timeout event is already in the list
+                const hasTimeout = events.some(e => e.key === 'timeout');
+                if (!hasTimeout) {
+                    events.push({
+                        name: 'Zaman Aşımı',
+                        key: 'timeout',
+                        icon: 'clock',
+                        color: '#f59e0b'
+                    });
+                }
+            }
+            return events;
         }
 
         return null;
