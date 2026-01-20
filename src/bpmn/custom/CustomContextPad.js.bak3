@@ -39,35 +39,6 @@ export default class CustomContextPad extends ContextPadProvider {
     ];
     keysToRemove.forEach(key => delete actions[key]);
 
-    // Check for custom outputs logic - use SINGLE connect button with queue
-    if (this._isTask(element)) {
-      const events = this._getOutputs(element.businessObject);
-
-      if (events && events.length > 0) {
-        // Remove standard Connect
-        delete actions.connect;
-
-        // Get next available event from queue
-        const nextEvent = this._getNextAvailableEvent(element, events);
-
-        if (nextEvent) {
-          const eventName = typeof nextEvent === 'string' ? nextEvent : nextEvent.name;
-
-          // Add SINGLE connect button that uses next event in queue
-          actions['connect.next'] = {
-            group: 'connect',
-            className: 'bpmn-icon-connection-multi',
-            title: this.translate(`Connect: ${eventName}`),
-            action: {
-              click: (clickEvent) => this._startConnect(clickEvent, element, nextEvent),
-              dragstart: (dragEvent) => this._startConnect(dragEvent, element, nextEvent)
-            }
-          };
-        }
-        // If nextEvent is null, no connect button shown (all events used)
-
-        // We do NOT add append tasks here because user flow is strictly controlled by outputs
-        return actions;
       }
     }
 
