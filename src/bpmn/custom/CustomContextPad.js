@@ -39,6 +39,18 @@ export default class CustomContextPad extends ContextPadProvider {
     ];
     keysToRemove.forEach(key => delete actions[key]);
 
+    // Restrict context pad for Connections (SequenceFlow)
+    // Only allow Delete and TextAnnotation
+    if (element.type === 'bpmn:SequenceFlow') {
+      const allowedActions = ['delete', 'append.text-annotation'];
+      Object.keys(actions).forEach(key => {
+        if (!allowedActions.includes(key)) {
+          delete actions[key];
+        }
+      });
+      return actions;
+    }
+
     // Check for custom outputs logic - use SINGLE connect button with queue
     // Check for custom outputs logic - use SINGLE connect button with queue
     if (this._isTask(element)) {
