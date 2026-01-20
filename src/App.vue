@@ -168,6 +168,13 @@
             <template v-else-if="field.type === 'checkbox'">
               <input type="checkbox" v-model="formState.fields[field.key]" />
             </template>
+            <template v-else-if="field.type === 'select'">
+              <select v-model="formState.fields[field.key]">
+                <option v-for="opt in field.options" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+            </template>
             <template v-else-if="field.type === 'events-table'">
               <div class="events-table-wrapper">
                 <table class="events-table">
@@ -259,8 +266,15 @@ const fieldDefs = {
     { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
     { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
     { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
-    { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
-    { key: 'timeout-event-key', label: 'Timeout Event Key', type: 'text' },
+    { 
+      key: 'timeout-action', 
+      label: 'Timeout Aksiyonu', 
+      type: 'select',
+      options: [
+        { value: 'reminder', label: 'Hatırlatma' },
+        { value: 'event', label: 'Event Çağırma' }
+      ]
+    },
     ...baseFields
   ],
   userGroupTask: [
@@ -272,8 +286,15 @@ const fieldDefs = {
     { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
     { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
     { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
-    { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
-    { key: 'timeout-event-key', label: 'Timeout Event Key', type: 'text' },
+    { 
+      key: 'timeout-action', 
+      label: 'Timeout Aksiyonu', 
+      type: 'select',
+      options: [
+        { value: 'reminder', label: 'Hatırlatma' },
+        { value: 'event', label: 'Event Çağırma' }
+      ]
+    },
     ...baseFields
   ],
   serviceTask: [
