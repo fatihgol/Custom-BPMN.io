@@ -7,41 +7,43 @@ export default class CustomConnectionBehavior extends CommandInterceptor {
     // Context pad üzerinden başlayan bağlantı tamamlandığında metadata ata
     this.postExecuted('connection.create', 999, (event) => {
       const { context } = event;
-      const { connection, hints, source } = context;
-      const label = hints?.label || context?.label;
+      const { connection, source } = context;
 
-      if (label && connection?.businessObject) {
-        const props = { name: label };
+      // Check if source element has pending event metadata
+      const eventMetadata = source?._pendingEventMetadata;
 
-        // Check if source element has pending event metadata
-        const eventMetadata = source?._pendingEventMetadata;
+      if (eventMetadata && connection?.businessObject) {
+        const props = {};
 
-        if (eventMetadata) {
-          // Store metadata as custom attributes
-          if (eventMetadata.eventKey) {
-            props['data-event-key'] = eventMetadata.eventKey;
-          }
-          if (eventMetadata.eventIcon) {
-            props['data-event-icon'] = eventMetadata.eventIcon;
-          }
-          if (eventMetadata.eventColor) {
-            props['data-event-color'] = eventMetadata.eventColor;
-
-            // Apply color to the DI (diagram interchange) element for visual rendering
-            const di = connection.di;
-            if (di) {
-              di.set('stroke', eventMetadata.eventColor);
-            }
-          }
-
-          // Clean up temporary metadata
-          delete source._pendingEventMetadata;
+        // Set label/name
+        if (eventMetadata.label) {
+          props.name = eventMetadata.label;
         }
+
+        // Store metadata as custom attributes
+        if (eventMetadata.eventKey) {
+          props['data-event-key'] = eventMetadata.eventKey;
+        }
+        if (eventMetadata.eventIcon) {
+          props['data-event-icon'] = eventMetadata.eventIcon;
+        }
+        if (eventMetadata.eventColor) {
+          props['data-event-color'] = eventMetadata.eventColor;
+
+          // Apply color to the DI (diagram interchange) element for visual rendering
+          const di = connection.di;
+          if (di) {
+            di.set('stroke', eventMetadata.eventColor);
+          }
+        }
+
+        // Clean up temporary metadata
+        delete source._pendingEventMetadata;
 
         modeling.updateProperties(connection, props);
 
         // Force visual update to apply color immediately
-        if (eventMetadata?.eventColor) {
+        if (eventMetadata.eventColor) {
           const gfx = canvas.getGraphics(connection);
           if (gfx) {
             const path = gfx.querySelector('path');
