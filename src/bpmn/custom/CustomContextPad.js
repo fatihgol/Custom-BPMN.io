@@ -105,17 +105,20 @@ export default class CustomContextPad extends ContextPadProvider {
   }
 
   _startConnect(event, element, eventData) {
-    // eventData can be a string (legacy) or an object { name, key, icon, color }
-    const hints = typeof eventData === 'string'
-      ? { label: eventData }
-      : {
-        label: eventData.name,
+    // Store event metadata temporarily for use in CustomConnectionBehavior
+    // We can't pass custom properties directly to connect.start() as it breaks the preview
+    if (typeof eventData === 'object' && eventData.color) {
+      // Store metadata on the element temporarily so CustomConnectionBehavior can access it
+      element._pendingEventMetadata = {
         eventKey: eventData.key,
         eventIcon: eventData.icon,
         eventColor: eventData.color
       };
+    }
 
-    this.connect.start(event, element, hints);
+    // Only pass the label to avoid breaking connection preview
+    const label = typeof eventData === 'string' ? eventData : eventData.name;
+    this.connect.start(event, element, { label });
   }
 
   _isTask(element) {
