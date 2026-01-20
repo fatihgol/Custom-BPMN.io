@@ -246,6 +246,45 @@ export default class CustomContextPad extends ContextPadProvider {
       (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
     );
 
+    // Return default events for UserTask and UserGroupTask if no custom events found
+    let events = null;
+    if (isUserTask || isUserGroupTask) {
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            events = parsed;
+          }
+        } catch (e) { }
+      }
+
+      if (!events) {
+        events = [
+          { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
+          { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
+        ];
+      }
+
+      // Check for Timeout Event
+      const timeoutEnabled = bo.$attrs && (bo.$attrs['data-timeout-enabled'] === 'true' || bo.$attrs['data-timeout-enabled'] === true);
+      const timeoutAction = bo.$attrs && bo.$attrs['data-timeout-action'];
+
+      if (timeoutEnabled && timeoutAction === 'event') {
+        // Check if timeout event is already in the list (to avoid duplicates if user somehow added it)
+        const hasTimeout = events.some(e => e.key === 'timeout');
+        if (!hasTimeout) {
+          events.push({
+            name: 'Zaman Aşımı',
+            key: 'timeout',
+            icon: 'clock', // You might need to ensure this icon exists or use a unicode char
+            color: '#f59e0b'
+          });
+        }
+      }
+      return events;
+    }
+
+    // For other tasks (fallback to normal logic)
     if (raw) {
       if (Array.isArray(raw) && raw.length > 0) return raw;
       try {
@@ -253,17 +292,7 @@ export default class CustomContextPad extends ContextPadProvider {
         if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
-      } catch (err) {
-        // Fallthrough to defaults if parse fails
-      }
-    }
-
-    // Return default events for UserTask and UserGroupTask if no custom events found
-    if (isUserTask || isUserGroupTask) {
-      return [
-        { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
-        { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
-      ];
+      } catch (err) { }
     }
 
     return null;
