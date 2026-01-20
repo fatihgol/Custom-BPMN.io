@@ -16,7 +16,7 @@ Uygulama varsayılan olarak `http://localhost:5173` adresinde çalışır.
 - Start, User Task, User Group Task, Service Task, Decision Node, Notification, API Call, End düğümleri için özel palet.
 - Her öğe `data-task-type` alanı üzerinden renklenir ve tanımlı metadataları taşır.
 - Başlangıç diyagramı hazır gelir, XML içe/dışa aktarma butonları mevcuttur.
-- Modal üzerinden çift tıklayarak dokümandaki `attr.md` referansına uygun tüm `data-*` alanları düzenleyebilirsiniz; alanlar tip bazlı gösterilir.
+- Modal üzerinden çift tıklayarak dokümandaki tüm `data-*` alanları düzenleyebilirsiniz; alanlar tip bazlı gösterilir.
 
 ## Notlar
 
