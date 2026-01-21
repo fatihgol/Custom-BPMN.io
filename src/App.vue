@@ -200,6 +200,30 @@
                 <button type="button" class="secondary small" @click="addEvent(field.key)">+ Add Event</button>
               </div>
             </template>
+            <template v-else-if="field.type === 'decision-table'">
+              <div class="events-table-wrapper">
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+                  * Kuralları sırayla tanımlayın (If, Else If...). Her zaman bir <strong>Default (Else)</strong> kolu otomatik oluşturulur.
+                </div>
+                <table class="events-table">
+                  <thead>
+                    <tr>
+                      <th>Label</th>
+                      <th>Condition</th>
+                      <th style="width: 40px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(rule, idx) in formState.fields[field.key]" :key="idx">
+                      <td><input type="text" v-model="rule.label" placeholder="Örn: Tutar > 500" /></td>
+                      <td><input type="text" v-model="rule.condition" placeholder="Expression (örn: ${amount} > 500)" style="font-family: monospace;" /></td>
+                      <td><button class="icon-btn delete" @click="removeEvent(field.key, idx)">🗑️</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button type="button" class="secondary small" @click="addDecisionRule(field.key)">+ Kural Ekle</button>
+              </div>
+            </template>
             <template v-else>
               <input :type="field.type" v-model="formState.fields[field.key]" />
             </template>
@@ -580,7 +604,7 @@ const loadCustomFields = (element, taskKey) => {
     
     if (field.type === 'checkbox') {
       acc[field.key] = val === 'true' || val === true;
-    } else if (field.type === 'events-table') {
+    } else if (field.type === 'events-table' || field.type === 'decision-table') {
       // JSON parse for events
       try {
         acc[field.key] = val ? JSON.parse(val) : [];
@@ -609,6 +633,13 @@ const addEvent = (fieldKey) => {
   formState.value.fields[fieldKey].push({ name: '', key: '', icon: '', color: '#000000' });
 };
 
+const addDecisionRule = (fieldKey) => {
+  if (!formState.value.fields[fieldKey]) {
+    formState.value.fields[fieldKey] = [];
+  }
+  formState.value.fields[fieldKey].push({ label: '', condition: '' });
+};
+
 const removeEvent = (fieldKey, idx) => {
   if (formState.value.fields[fieldKey]) {
     formState.value.fields[fieldKey].splice(idx, 1);
@@ -631,7 +662,7 @@ const saveModal = () => {
     
     if (field.type === 'checkbox') {
       val = val ? 'true' : 'false';
-    } else if (field.type === 'events-table') {
+    } else if (field.type === 'events-table' || field.type === 'decision-table') {
       val = val && val.length > 0 ? JSON.stringify(val) : '';
     }
     
