@@ -18,6 +18,7 @@ const fillByKey = {
   notificationNode: 'rgba(34, 211, 238, 0.12)',
   apiCallTask: 'rgba(163, 230, 53, 0.12)',
   generateDocTask: 'rgba(0, 150, 136, 0.12)',
+  callActivity: 'rgba(57, 73, 171, 0.12)',
   end: 'rgba(239, 68, 68, 0.12)'
 };
 
@@ -28,7 +29,8 @@ const accentConfig = {
   apiCallTask: { spine: '#26c6da', bar: '#e0f7fa' },
   notificationNode: { spine: '#ffa726', bar: '#fff3e0', dark: '#ef6c00', light: '#ffe0b2' },
   decisionNode: { spine: '#ab47bc', bar: '#f3e5f5' },
-  generateDocTask: { spine: '#009688', bar: '#e0f2f1' }
+  generateDocTask: { spine: '#009688', bar: '#e0f2f1' },
+  callActivity: { spine: '#3949ab', bar: '#e8eaf6' }
 };
 
 const renderInlineLabel = (parentNode, text, x, y, maxWidth = 80) => {
@@ -320,7 +322,9 @@ export default class CustomRenderer extends BaseRenderer {
       typeKey === 'apiCallTask' ||
       typeKey === 'notificationNode' ||
       typeKey === 'decisionNode' ||
-      typeKey === 'generateDocTask'
+      typeKey === 'decisionNode' ||
+      typeKey === 'generateDocTask' ||
+      typeKey === 'callActivity'
     ) {
       const svgRoot = parentNode.ownerSVGElement;
       if (!svgRoot) {
@@ -424,7 +428,8 @@ export default class CustomRenderer extends BaseRenderer {
           serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
           apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
-          generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 }
+          generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
+          callActivity: { x1: 45, w1: 45, x2: 45, w2: 30 }
         }[typeKey];
 
         if (barData) {
@@ -682,7 +687,58 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, docFold);
         svgAppend(iconGroup, docLine);
         svgAppend(iconGroup, docDashed);
+        svgAppend(iconGroup, docDashed);
         svgAppend(iconGroup, arrowG);
+      } else if (typeKey === 'callActivity') {
+        iconGroup.setAttribute('transform', 'translate(15, 15)');
+
+        // Main Lines
+        const lines = svgCreate('path');
+        lines.setAttribute('d', 'M 5,10 H 9 M 21,10 H 25');
+        lines.setAttribute('stroke', '#3949ab');
+        lines.setAttribute('stroke-width', 2);
+        lines.setAttribute('stroke-linecap', 'round');
+
+        // Left Dot
+        const dot1 = svgCreate('circle');
+        dot1.setAttribute('cx', 3);
+        dot1.setAttribute('cy', 10);
+        dot1.setAttribute('r', 2.5);
+        dot1.setAttribute('fill', '#ffffff');
+        dot1.setAttribute('stroke', '#3949ab');
+        dot1.setAttribute('stroke-width', 1.5);
+
+        // Center Box
+        const box = svgCreate('rect');
+        box.setAttribute('x', 9);
+        box.setAttribute('y', 4);
+        box.setAttribute('width', 12);
+        box.setAttribute('height', 12);
+        box.setAttribute('rx', 2);
+        box.setAttribute('fill', '#ffffff');
+        box.setAttribute('stroke', '#3949ab');
+        box.setAttribute('stroke-width', 2);
+
+        // Inner Plus/Lines in Box
+        const innerLines = svgCreate('path');
+        innerLines.setAttribute('d', 'M 15,7 V 13 M 12,10 H 18');
+        innerLines.setAttribute('stroke', '#3949ab');
+        innerLines.setAttribute('stroke-width', 1.5);
+        innerLines.setAttribute('stroke-linecap', 'round');
+
+        // Right Dot (Filled)
+        const dot2 = svgCreate('circle');
+        dot2.setAttribute('cx', 27);
+        dot2.setAttribute('cy', 10);
+        dot2.setAttribute('r', 2.5);
+        dot2.setAttribute('fill', '#3949ab');
+        dot2.setAttribute('stroke', 'none');
+
+        svgAppend(iconGroup, lines);
+        svgAppend(iconGroup, dot1);
+        svgAppend(iconGroup, box);
+        svgAppend(iconGroup, innerLines);
+        svgAppend(iconGroup, dot2);
       }
 
       svgAppend(g, iconGroup);

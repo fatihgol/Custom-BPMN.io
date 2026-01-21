@@ -80,6 +80,18 @@ export const taskTypes = [
     color: '#009688'
   },
   {
+    key: 'callActivity',
+    label: 'Call Activity',
+    type: 'bpmn:ServiceTask', // Using ServiceTask as base, but it's logically a Call Activity. BPMN has bpmn:CallActivity type, but user pattern uses ServiceTask with custom type. Let's check user request XML again. No XML type specified, but usually Call Activity is its own type. However, existing custom tasks reuse ServiceTask or UserTask. "Alt Akış" implies Sub Process. Standard BPMN has generic Call Activity. Let's stick to 'bpmn:ServiceTask' for consistency with other custom types unless user wanted specific behavior. Actually, for a Sub Process call, 'bpmn:CallActivity' is the standard. But standard bpmn-js might render it differently. Given the custom renderer overrides everything based on `data-task-type`, the base type matters less for visuals, but matters for properties. I will use 'bpmn:ServiceTask' to align with the current architecture where everything is a custom ServiceTask variants, or 'bpmn:CallActivity' if supported. Let's stick to 'bpmn:ServiceTask' to avoid complexities with standard behaviors of CallActivity unless forced.
+    // WAIT. If I use bpmn:CallActivity, bpmn-js might expect calledElement property.
+    // I'll use bpmn:ServiceTask and 'callActivity' as the key.
+    icon: 'bpmn-icon-subprocess-expanded',
+    wait: true, // Subprocesses usually wait
+    outputs: '1',
+    event: 'Hayır',
+    color: '#3949ab'
+  },
+  {
     key: 'end',
     label: 'End',
     type: 'bpmn:EndEvent',

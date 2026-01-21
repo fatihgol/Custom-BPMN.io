@@ -392,6 +392,27 @@ body {
   fill: none;
 }
 
+.palette-entry.generate-doc svg {
+  fill: none;
+}
+
+.palette-entry.call-activity:hover {
+  color: #3949ab;
+}
+
+.palette-entry.call-activity svg {
+  fill: none;
+}
+
+.palette-entry.call-activity svg circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+.palette-entry.call-activity svg rect {
+  stroke: currentColor;
+}
+
 .palette-entry.notification:hover {
   color: var(--color-notify);
 }

@@ -136,6 +136,22 @@
               <circle cx="15" cy="10" r="1.5" stroke="none" />
               <circle cx="4" cy="17" r="1.5" stroke="none" />
             </g>
+            </g>
+          </svg>
+        </button>
+
+        <button
+          class="palette-entry call-activity"
+          title="Alt Akış Çağır"
+          @mousedown.prevent="(e) => startPaletteAction('callActivity', e)"
+        >
+          <svg viewBox="0 0 24 24">
+            <g transform="translate(2, 2)">
+              <rect x="1" y="2" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+              <path d="M 10,6 V 14 M 6,10 H 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="1" cy="10" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="19" cy="10" r="1" fill="currentColor" stroke="none"/>
+            </g>
           </svg>
         </button>
 
@@ -284,7 +300,9 @@ const ELEMENT_MAPPING = {
   'bpmn:UserTask': { 'data-task-type': ['userTask', 'userGroupTask'] },
   'bpmn:Task': { 'data-task-type': 'userTask' },
   'bpmn:Task': { 'data-task-type': 'userTask' },
-  'bpmn:ServiceTask': { 'data-task-type': ['serviceTask', 'apiCallTask', 'generateDocTask'] },
+  'bpmn:Task': { 'data-task-type': 'userTask' },
+  'bpmn:ServiceTask': { 'data-task-type': ['serviceTask', 'apiCallTask', 'generateDocTask', 'callActivity'] },
+  'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:SendTask': { 'data-task-type': 'notificationNode' },
@@ -396,6 +414,14 @@ const fieldDefs = {
       ]
     },
     { key: 'doc-data-source', label: 'Veri Kaynağı (JSON/Var)', type: 'textarea' },
+    { key: 'doc-data-source', label: 'Veri Kaynağı (JSON/Var)', type: 'textarea' },
+    ...baseFields
+  ],
+  callActivity: [
+    { key: 'subprocess-id', label: 'Alt Akış (Sub-process) ID', type: 'text' },
+    { key: 'subprocess-version', label: 'Versiyon (Opsiyonel)', type: 'text' },
+    { key: 'input-mapping', label: 'Girdi Haritalama (Input Mapping)', type: 'key-value-table' },
+    { key: 'output-mapping', label: 'Çıktı Haritalama (Output Mapping)', type: 'key-value-table' },
     ...baseFields
   ],
   decisionNode: [
