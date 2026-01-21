@@ -319,7 +319,8 @@ export default class CustomRenderer extends BaseRenderer {
       typeKey === 'serviceTask' ||
       typeKey === 'apiCallTask' ||
       typeKey === 'notificationNode' ||
-      typeKey === 'decisionNode'
+      typeKey === 'decisionNode' ||
+      typeKey === 'generateDocTask'
     ) {
       const svgRoot = parentNode.ownerSVGElement;
       if (!svgRoot) {
@@ -422,10 +423,8 @@ export default class CustomRenderer extends BaseRenderer {
           userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
           apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-          serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
-          apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
-          // generateDocTask handled manually in iconGroup due to complex structure
+          generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 }
         }[typeKey];
 
         if (barData) {
@@ -613,27 +612,6 @@ export default class CustomRenderer extends BaseRenderer {
         bottoms.setAttribute('fill', '#f3e5f5');
         svgAppend(iconGroup, bottoms);
       } else if (typeKey === 'generateDocTask') {
-        const svgHTML = `<g class="generate-doc-group">
-  <path d="M 5,1 A 8,8 0 0 0 1,9 V 71 A 8,8 0 0 0 5,79" stroke="#009688" stroke-width="6" fill="none"/>
-  
-  <g transform="translate(18, 15)">
-    <path d="M 4,1 L 15,1 L 20,6 L 20,23 L 4,23 Z" fill="none" stroke="#009688" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M 15,1 V 6 H 20" fill="none" stroke="#009688" stroke-width="2" stroke-linejoin="round"/> <rect x="7" y="9" width="10" height="3" rx="0.5" fill="#009688" stroke="none"/>
-
-    <rect x="7" y="14" width="10" height="6" rx="0.5" fill="none" stroke="#009688" stroke-width="1.5" stroke-dasharray="2,1"/>
-
-    <g transform="translate(-3, 17)">
-      <path d="M 0,0 L 6,0" stroke="#009688" stroke-width="2.5" stroke-linecap="round"/> <path d="M 4,-2.5 L 7,0 L 4,2.5" fill="#009688" stroke="none"/> </g>
-  </g>
-  
-  <rect x="45" y="30" width="45" height="4" rx="2" fill="#e0f2f1"/>
-  <rect x="45" y="40" width="30" height="4" rx="2" fill="#e0f2f1"/>
-</g>`;
-        // Using innerHTML for complex groups if tiny-svg append/create is too verbose, 
-        // OR recreating via tiny-svg for consistency. Let's use innerHTML approach wrapper if possible, 
-        // OR better: reproduce the structure to avoid parsing issues.
-        // Actually, since we are inside CustomRenderer, let's just stick to the custom SVG structure provided, mapped to tiny-svg calls.
-
         // Spine (Left bar)
         // Already drawn by generic logic? No, generic logic draws a generic spine. 
         // The generic logic draws `const spine = svgCreate('path'); ...` at lines 408-410.
