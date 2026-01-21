@@ -39,6 +39,8 @@ export default class CustomContextPad extends ContextPadProvider {
     ];
     keysToRemove.forEach(key => delete actions[key]);
 
+    keysToRemove.forEach(key => delete actions[key]);
+
     // Restrict context pad for Connections (SequenceFlow)
     // Only allow Delete and TextAnnotation
     if (element.type === 'bpmn:SequenceFlow') {
@@ -51,7 +53,16 @@ export default class CustomContextPad extends ContextPadProvider {
       return actions;
     }
 
-    // Check for custom outputs logic - use SINGLE connect button with queue
+    // Strict rule for StartEvent: Only 1 outgoing connection allowed
+    if (element.type === 'bpmn:StartEvent' && element.outgoing && element.outgoing.length >= 1) {
+      delete actions.connect;
+    }
+
+    // EndEvent should NOT have outgoing connections
+    if (element.type === 'bpmn:EndEvent') {
+      delete actions.connect;
+    }
+
     // Check for custom outputs logic - use SINGLE connect button with queue
     if (this._isTask(element)) {
       const events = this._getOutputs(element.businessObject);
@@ -71,15 +82,6 @@ export default class CustomContextPad extends ContextPadProvider {
         delete actions.connect;
       }
 
-      // Strict rule for StartEvent: Only 1 outgoing connection allowed
-      if (element.type === 'bpmn:StartEvent' && element.outgoing && element.outgoing.length >= 1) {
-        delete actions.connect;
-      }
-
-      // EndEvent should NOT have outgoing connections
-      if (element.type === 'bpmn:EndEvent') {
-        delete actions.connect;
-      }
 
       if (events && events.length > 0) {
         // Get next available event from queue
