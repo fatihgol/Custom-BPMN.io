@@ -268,13 +268,15 @@ export default class CustomContextPad extends ContextPadProvider {
       (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
     );
 
+    // Check for Decision Node OR API Call Task (which now acts like a decision node)
     const isDecisionNode = bo && (
       bo.$type === 'bpmn:ExclusiveGateway' ||
       (bo.$attrs && bo.$attrs['data-task-type'] === 'decisionNode')
     );
+    const isApiTask = bo && (bo.$attrs && bo.$attrs['data-task-type'] === 'apiCallTask');
 
-    if (isDecisionNode) {
-      return this._getDecisionOutputs(bo);
+    if (isDecisionNode || isApiTask) {
+      return this._getDecisionOutputs(bo, isApiTask);
     }
 
     // Return default events for UserTask and UserGroupTask if no custom events found
@@ -329,7 +331,7 @@ export default class CustomContextPad extends ContextPadProvider {
     return null;
   }
 
-  _getDecisionOutputs(bo) {
+  _getDecisionOutputs(bo, isApiTask = false) {
     const DECISION_COLORS = [
       '#64b5f6', // Light Blue
       '#2196f3', // Blue
@@ -339,8 +341,9 @@ export default class CustomContextPad extends ContextPadProvider {
       '#052863'  // Darkest
     ];
 
-    // 1. Get defined rules
-    const rawRules = bo.$attrs && bo.$attrs['data-decision-rules'];
+    // 1. Get defined rules (use 'data-api-rules' for API tasks, 'data-decision-rules' for others)
+    const ruleAttr = isApiTask ? 'data-api-rules' : 'data-decision-rules';
+    const rawRules = bo.$attrs && bo.$attrs[ruleAttr];
     let rules = [];
     if (rawRules) {
       try {

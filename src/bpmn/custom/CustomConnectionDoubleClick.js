@@ -249,20 +249,21 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             return events;
         }
 
-        // Check for Decision Node
+        // Check for Decision Node OR API Call Task
         const isDecisionNode = bo && (
             bo.$type === 'bpmn:ExclusiveGateway' ||
             (bo.$attrs && bo.$attrs['data-task-type'] === 'decisionNode')
         );
+        const isApiTask = bo && (bo.$attrs && bo.$attrs['data-task-type'] === 'apiCallTask');
 
-        if (isDecisionNode) {
-            return this._getDecisionOutputs(bo);
+        if (isDecisionNode || isApiTask) {
+            return this._getDecisionOutputs(bo, isApiTask);
         }
 
         return null;
     }
 
-    _getDecisionOutputs(bo) {
+    _getDecisionOutputs(bo, isApiTask = false) {
         const DECISION_COLORS = [
             '#64b5f6', // Light Blue
             '#2196f3', // Blue
@@ -272,8 +273,9 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             '#052863'  // Darkest
         ];
 
-        // 1. Get defined rules
-        const rawRules = bo.$attrs && bo.$attrs['data-decision-rules'];
+        // 1. Get defined rules (use 'data-api-rules' for API tasks)
+        const ruleAttr = isApiTask ? 'data-api-rules' : 'data-decision-rules';
+        const rawRules = bo.$attrs && bo.$attrs[ruleAttr];
         let rules = [];
         if (rawRules) {
             try {
