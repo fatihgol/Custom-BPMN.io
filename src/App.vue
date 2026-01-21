@@ -175,35 +175,34 @@
                 </option>
               </select>
             </template>
-            <template v-else-if="field.type === 'events-table'">
+            <template v-else-if="field.type === 'key-value-table'">
               <div class="events-table-wrapper">
                 <table class="events-table">
                   <thead>
                     <tr>
-                      <th>Name</th>
                       <th>Key</th>
-                      <th>Icon</th>
-                      <th>Color</th>
-                      <th>Action</th>
+                      <th>Value</th>
+                      <th style="width: 40px;"></th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(event, idx) in formState.fields[field.key]" :key="idx">
-                      <td><input type="text" v-model="event.name" placeholder="Onayla" /></td>
-                      <td><input type="text" v-model="event.key" placeholder="approve" /></td>
-                      <td><input type="text" v-model="event.icon" placeholder="check" /></td>
-                      <td><input type="color" v-model="event.color" /></td>
+                    <tr v-for="(item, idx) in formState.fields[field.key]" :key="idx">
+                      <td><input type="text" v-model="item.key" placeholder="Content-Type" /></td>
+                      <td><input type="text" v-model="item.value" placeholder="application/json" /></td>
                       <td><button class="icon-btn delete" @click="removeEvent(field.key, idx)">🗑️</button></td>
                     </tr>
                   </tbody>
                 </table>
-                <button type="button" class="secondary small" @click="addEvent(field.key)">+ Add Event</button>
+                <button type="button" class="secondary small" @click="addKeyValue(field.key)">+ Add Header</button>
               </div>
             </template>
             <template v-else-if="field.type === 'decision-table'">
               <div class="events-table-wrapper">
                 <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
                   * Kuralları sırayla tanımlayın (If, Else If...). Her zaman bir <strong>Default (Else)</strong> kolu otomatik oluşturulur.
+                  <span v-if="formState.taskKey === 'apiCallTask'" style="display:block; margin-top:2px; color:#0284c7;">
+                    Örn: <code>response.status == 200</code> veya <code>response.body.success === true</code>
+                  </span>
                 </div>
                 <table class="events-table">
                   <thead>
@@ -215,8 +214,8 @@
                   </thead>
                   <tbody>
                     <tr v-for="(rule, idx) in formState.fields[field.key]" :key="idx">
-                      <td><input type="text" v-model="rule.label" placeholder="Örn: Tutar > 500" /></td>
-                      <td><input type="text" v-model="rule.condition" placeholder="Expression (örn: ${amount} > 500)" style="font-family: monospace;" /></td>
+                      <td><input type="text" v-model="rule.label" placeholder="Örn: Başarılı (200)" /></td>
+                      <td><input type="text" v-model="rule.condition" placeholder="Condition" style="font-family: monospace;" /></td>
                       <td><button class="icon-btn delete" @click="removeEvent(field.key, idx)">🗑️</button></td>
                     </tr>
                   </tbody>
@@ -337,24 +336,35 @@ const fieldDefs = {
     ...baseFields
   ],
   apiCallTask: [
-    { key: 'api-method', label: 'HTTP Method', type: 'text' },
+    { 
+      key: 'api-method', 
+      label: 'HTTP Method', 
+      type: 'select',
+      options: [
+        { value: 'GET', label: 'GET' },
+        { value: 'POST', label: 'POST' },
+        { value: 'PUT', label: 'PUT' },
+        { value: 'DELETE', label: 'DELETE' },
+        { value: 'PATCH', label: 'PATCH' }
+      ]
+    },
     { key: 'api-url', label: 'API URL', type: 'text' },
-    { key: 'api-headers', label: 'Headers', type: 'textarea' },
+    { key: 'api-headers', label: 'Headers', type: 'key-value-table' },
     { key: 'api-body', label: 'Body', type: 'textarea' },
-    { key: 'api-response-mapping', label: 'Response Mapping', type: 'textarea' },
-    { key: 'api-output-type', label: 'Output Type', type: 'text' },
-    { key: 'api-output-evaluator', label: 'Output Evaluator', type: 'text' },
-    { key: 'api-output-expression', label: 'Output Expression', type: 'textarea' },
+    { key: 'api-rules', label: 'Routing Rules (Response Evaluation)', type: 'decision-table' },
     { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
     { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
     { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
-    { key: 'timeout-output-way', label: 'Timeout Output Way', type: 'text' },
     { key: 'retry-enabled', label: 'Retry Aktif', type: 'checkbox' },
     { key: 'retry-max-attempts', label: 'Retry Maks Deneme', type: 'text' },
     { key: 'retry-backoff-type', label: 'Backoff Tipi', type: 'text' },
     ...baseFields
   ],
   decisionNode: [
+    { key: 'decision-rules', label: 'Kurallar (If / Else If)', type: 'decision-table' },
+    ...baseFields
+  ],
+  notificationNode: [
     { key: 'decision-rules', label: 'Kurallar (If / Else If)', type: 'decision-table' },
     ...baseFields
   ],
