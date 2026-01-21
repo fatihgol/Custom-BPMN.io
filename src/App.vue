@@ -104,6 +104,24 @@
         </button>
 
         <button
+          class="palette-entry generate-doc"
+          title="Şablondan Belge Üret"
+          @mousedown.prevent="(e) => startPaletteAction('generateDocTask', e)"
+        >
+          <svg viewBox="0 0 24 24">
+            <g transform="translate(2, 1)">
+              <path d="M3 1h9l5 5v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 1v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              
+              <rect x="6" y="11" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="1.5"/>
+
+              <path d="M 0,14 H 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M 3,12 L 5,14 L 3,16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>
+        </button>
+
+        <button
           class="palette-entry decision"
           title="Karar Tablosu"
           @mousedown.prevent="(e) => startPaletteAction('decisionNode', e)"
@@ -265,7 +283,9 @@ const ELEMENT_MAPPING = {
   'bpmn:StartEvent': { 'data-task-type': 'start' },
   'bpmn:UserTask': { 'data-task-type': ['userTask', 'userGroupTask'] },
   'bpmn:Task': { 'data-task-type': 'userTask' },
-  'bpmn:ServiceTask': { 'data-task-type': ['serviceTask', 'apiCallTask'] },
+  'bpmn:Task': { 'data-task-type': 'userTask' },
+  'bpmn:ServiceTask': { 'data-task-type': ['serviceTask', 'apiCallTask', 'generateDocTask'] },
+  'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:SendTask': { 'data-task-type': 'notificationNode' },
   'bpmn:EndEvent': { 'data-task-type': 'end' }
@@ -358,6 +378,24 @@ const fieldDefs = {
     { key: 'retry-enabled', label: 'Retry Aktif', type: 'checkbox' },
     { key: 'retry-max-attempts', label: 'Retry Maks Deneme', type: 'text' },
     { key: 'retry-backoff-type', label: 'Backoff Tipi', type: 'text' },
+    { key: 'retry-max-attempts', label: 'Retry Maks Deneme', type: 'text' },
+    { key: 'retry-backoff-type', label: 'Backoff Tipi', type: 'text' },
+    ...baseFields
+  ],
+  generateDocTask: [
+    { key: 'doc-template-id', label: 'Şablon ID', type: 'text' },
+    { key: 'doc-output-name', label: 'Çıktı Dosya Adı', type: 'text' },
+    { 
+      key: 'doc-format', 
+      label: 'Format', 
+      type: 'select',
+      options: [
+        { value: 'pdf', label: 'PDF' },
+        { value: 'docx', label: 'Word (DOCX)' },
+        { value: 'html', label: 'HTML' }
+      ]
+    },
+    { key: 'doc-data-source', label: 'Veri Kaynağı (JSON/Var)', type: 'textarea' },
     ...baseFields
   ],
   decisionNode: [

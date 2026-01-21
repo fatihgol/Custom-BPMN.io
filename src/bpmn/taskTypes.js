@@ -70,6 +70,16 @@ export const taskTypes = [
     color: '#a3e635'
   },
   {
+    key: 'generateDocTask',
+    label: 'Generate Doc',
+    type: 'bpmn:ServiceTask',
+    icon: 'bpmn-icon-file',
+    wait: false,
+    outputs: '1',
+    event: 'Hayır',
+    color: '#009688'
+  },
+  {
     key: 'end',
     label: 'End',
     type: 'bpmn:EndEvent',

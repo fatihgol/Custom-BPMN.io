@@ -17,6 +17,7 @@ const fillByKey = {
   decisionNode: 'rgba(236, 72, 153, 0.12)',
   notificationNode: 'rgba(34, 211, 238, 0.12)',
   apiCallTask: 'rgba(163, 230, 53, 0.12)',
+  generateDocTask: 'rgba(0, 150, 136, 0.12)',
   end: 'rgba(239, 68, 68, 0.12)'
 };
 
@@ -26,7 +27,8 @@ const accentConfig = {
   serviceTask: { spine: '#78909c', bar: '#eceff1' },
   apiCallTask: { spine: '#26c6da', bar: '#e0f7fa' },
   notificationNode: { spine: '#ffa726', bar: '#fff3e0', dark: '#ef6c00', light: '#ffe0b2' },
-  decisionNode: { spine: '#ab47bc', bar: '#f3e5f5' }
+  decisionNode: { spine: '#ab47bc', bar: '#f3e5f5' },
+  generateDocTask: { spine: '#009688', bar: '#e0f2f1' }
 };
 
 const renderInlineLabel = (parentNode, text, x, y, maxWidth = 80) => {
@@ -420,7 +422,8 @@ export default class CustomRenderer extends BaseRenderer {
           userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
           apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-          notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 }
+          notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
+          generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 }
         }[typeKey];
 
         if (barData) {
@@ -607,6 +610,99 @@ export default class CustomRenderer extends BaseRenderer {
         bottoms.setAttribute('rx', 1.5);
         bottoms.setAttribute('fill', '#f3e5f5');
         svgAppend(iconGroup, bottoms);
+      } else if (typeKey === 'generateDocTask') {
+        const svgHTML = `<g class="generate-doc-group">
+  <path d="M 5,1 A 8,8 0 0 0 1,9 V 71 A 8,8 0 0 0 5,79" stroke="#009688" stroke-width="6" fill="none"/>
+  
+  <g transform="translate(18, 15)">
+    <path d="M 4,1 L 15,1 L 20,6 L 20,23 L 4,23 Z" fill="none" stroke="#009688" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 15,1 V 6 H 20" fill="none" stroke="#009688" stroke-width="2" stroke-linejoin="round"/> <rect x="7" y="9" width="10" height="3" rx="0.5" fill="#009688" stroke="none"/>
+
+    <rect x="7" y="14" width="10" height="6" rx="0.5" fill="none" stroke="#009688" stroke-width="1.5" stroke-dasharray="2,1"/>
+
+    <g transform="translate(-3, 17)">
+      <path d="M 0,0 L 6,0" stroke="#009688" stroke-width="2.5" stroke-linecap="round"/> <path d="M 4,-2.5 L 7,0 L 4,2.5" fill="#009688" stroke="none"/> </g>
+  </g>
+  
+  <rect x="45" y="30" width="45" height="4" rx="2" fill="#e0f2f1"/>
+  <rect x="45" y="40" width="30" height="4" rx="2" fill="#e0f2f1"/>
+</g>`;
+        // Using innerHTML for complex groups if tiny-svg append/create is too verbose, 
+        // OR recreating via tiny-svg for consistency. Let's use innerHTML approach wrapper if possible, 
+        // OR better: reproduce the structure to avoid parsing issues.
+        // Actually, since we are inside CustomRenderer, let's just stick to the custom SVG structure provided, mapped to tiny-svg calls.
+
+        // Spine (Left bar)
+        // Already drawn by generic logic? No, generic logic draws a generic spine. 
+        // The generic logic draws `const spine = svgCreate('path'); ...` at lines 408-410.
+        // The generic spine is: M 5,1 A 8,8 0 0 0 1,9 V 71 A 8,8 0 0 0 5,79
+        // The user provided spine is IDENTICIAL but specific color. 
+        // accent.spine matches #009688, so GENERIC SPINE is fine. We don't need to redraw it in iconGroup.
+
+        // Bars (Right side)
+        // Generic logic draws bars if `barData` exists.
+        // User SVG has bars at: x=45 y=30 w=45 and x=45 y=40 w=30.
+        // Let's Add barData for generateDocTask to generic logic instead of here.
+
+        // So here only the ICON part (translate(18, 15)) is needed.
+
+        iconGroup.setAttribute('transform', 'translate(18, 15)');
+
+        const docFrame = svgCreate('path');
+        docFrame.setAttribute('d', 'M 4,1 L 15,1 L 20,6 L 20,23 L 4,23 Z');
+        docFrame.setAttribute('fill', 'none');
+        docFrame.setAttribute('stroke', '#009688');
+        docFrame.setAttribute('stroke-width', 2);
+        docFrame.setAttribute('stroke-linejoin', 'round');
+
+        const docFold = svgCreate('path');
+        docFold.setAttribute('d', 'M 15,1 V 6 H 20');
+        docFold.setAttribute('fill', 'none');
+        docFold.setAttribute('stroke', '#009688');
+        docFold.setAttribute('stroke-width', 2);
+        docFold.setAttribute('stroke-linejoin', 'round');
+
+        const docLine = svgCreate('rect');
+        docLine.setAttribute('x', 7);
+        docLine.setAttribute('y', 9);
+        docLine.setAttribute('width', 10);
+        docLine.setAttribute('height', 3);
+        docLine.setAttribute('rx', 0.5);
+        docLine.setAttribute('fill', '#009688');
+        docLine.setAttribute('stroke', 'none');
+
+        const docDashed = svgCreate('rect');
+        docDashed.setAttribute('x', 7);
+        docDashed.setAttribute('y', 14);
+        docDashed.setAttribute('width', 10);
+        docDashed.setAttribute('height', 6);
+        docDashed.setAttribute('rx', 0.5);
+        docDashed.setAttribute('fill', 'none');
+        docDashed.setAttribute('stroke', '#009688');
+        docDashed.setAttribute('stroke-width', 1.5);
+        docDashed.setAttribute('stroke-dasharray', '2,1');
+
+        const arrowG = svgCreate('g');
+        arrowG.setAttribute('transform', 'translate(-3, 17)');
+        const arrowLine = svgCreate('path');
+        arrowLine.setAttribute('d', 'M 0,0 L 6,0');
+        arrowLine.setAttribute('stroke', '#009688');
+        arrowLine.setAttribute('stroke-width', 2.5);
+        arrowLine.setAttribute('stroke-linecap', 'round');
+
+        const arrowHead = svgCreate('path');
+        arrowHead.setAttribute('d', 'M 4,-2.5 L 7,0 L 4,2.5');
+        arrowHead.setAttribute('fill', '#009688');
+        arrowHead.setAttribute('stroke', 'none');
+
+        svgAppend(arrowG, arrowLine);
+        svgAppend(arrowG, arrowHead);
+
+        svgAppend(iconGroup, docFrame);
+        svgAppend(iconGroup, docFold);
+        svgAppend(iconGroup, docLine);
+        svgAppend(iconGroup, docDashed);
+        svgAppend(iconGroup, arrowG);
       }
 
       svgAppend(g, iconGroup);
