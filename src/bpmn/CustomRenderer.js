@@ -359,54 +359,90 @@ export default class CustomRenderer extends BaseRenderer {
 
       const accent = accentConfig[typeKey];
 
-      const outer = svgCreate('rect');
-      outer.setAttribute('x', 1);
-      outer.setAttribute('y', 1);
-      outer.setAttribute('width', baseW - 2);
-      outer.setAttribute('height', baseH - 2);
-      outer.setAttribute('rx', 8);
-      outer.setAttribute('ry', 8);
-      outer.setAttribute('fill', '#ffffff');
-      outer.setAttribute('stroke', '#e0e0e0');
-      outer.setAttribute('stroke-width', 1);
-      svgAppend(g, outer);
+      if (typeKey === 'decisionNode') {
+        const filterId = 'shadow-gate';
+        if (!defs.querySelector(`#${filterId}`)) {
+          const filter = svgCreate('filter');
+          filter.setAttribute('id', filterId);
+          filter.setAttribute('x', '-20%');
+          filter.setAttribute('y', '-20%');
+          filter.setAttribute('width', '140%');
+          filter.setAttribute('height', '140%');
 
-      const spine = svgCreate('path');
-      spine.setAttribute('d', 'M 5,1 A 8,8 0 0 0 1,9 V 71 A 8,8 0 0 0 5,79');
-      spine.setAttribute('stroke', accent.spine);
-      spine.setAttribute('stroke-width', 6);
-      spine.setAttribute('fill', 'none');
-      svgAppend(g, spine);
+          const dropShadow = svgCreate('feDropShadow');
+          dropShadow.setAttribute('dx', '0');
+          dropShadow.setAttribute('dy', '2');
+          dropShadow.setAttribute('stdDeviation', '2');
+          dropShadow.setAttribute('flood-color', '#ab47bc');
+          dropShadow.setAttribute('flood-opacity', '0.2');
 
-      const bars = svgCreate('g');
-      const bar1 = svgCreate('rect');
-      const bar2 = svgCreate('rect');
-      const barData = {
-        userTask: { x1: 40, w1: 50, x2: 40, w2: 35 },
-        userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-        serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
-        apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-        notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
-        decisionNode: { x1: 40, w1: 30, x2: 40, w2: 20, y1: 34, y2: 44 }
-      }[typeKey];
+          svgAppend(filter, dropShadow);
+          svgAppend(defs, filter);
+        }
 
-      bar1.setAttribute('x', barData.x1);
-      bar1.setAttribute('y', barData.y1 || 30);
-      bar1.setAttribute('width', barData.w1);
-      bar1.setAttribute('height', 4);
-      bar1.setAttribute('rx', 2);
-      bar1.setAttribute('fill', accent.bar);
+        const diamond = svgCreate('rect');
+        diamond.setAttribute('x', 16);
+        diamond.setAttribute('y', 16);
+        diamond.setAttribute('width', 48);
+        diamond.setAttribute('height', 48);
+        diamond.setAttribute('rx', 4);
+        diamond.setAttribute('transform', 'rotate(45 40 40)');
+        diamond.setAttribute('fill', '#ffffff');
+        diamond.setAttribute('stroke', '#ab47bc');
+        diamond.setAttribute('stroke-width', 3);
+        diamond.setAttribute('filter', `url(#${filterId})`);
+        svgAppend(g, diamond);
+      } else {
+        const outer = svgCreate('rect');
+        outer.setAttribute('x', 1);
+        outer.setAttribute('y', 1);
+        outer.setAttribute('width', baseW - 2);
+        outer.setAttribute('height', baseH - 2);
+        outer.setAttribute('rx', 8);
+        outer.setAttribute('ry', 8);
+        outer.setAttribute('fill', '#ffffff');
+        outer.setAttribute('stroke', '#e0e0e0');
+        outer.setAttribute('stroke-width', 1);
+        svgAppend(g, outer);
 
-      bar2.setAttribute('x', barData.x2);
-      bar2.setAttribute('y', barData.y2 || 40);
-      bar2.setAttribute('width', barData.w2);
-      bar2.setAttribute('height', 4);
-      bar2.setAttribute('rx', 2);
-      bar2.setAttribute('fill', accent.bar);
+        const spine = svgCreate('path');
+        spine.setAttribute('d', 'M 5,1 A 8,8 0 0 0 1,9 V 71 A 8,8 0 0 0 5,79');
+        spine.setAttribute('stroke', accent.spine);
+        spine.setAttribute('stroke-width', 6);
+        spine.setAttribute('fill', 'none');
+        svgAppend(g, spine);
 
-      svgAppend(bars, bar1);
-      svgAppend(bars, bar2);
-      svgAppend(g, bars);
+        const bars = svgCreate('g');
+        const bar1 = svgCreate('rect');
+        const bar2 = svgCreate('rect');
+        const barData = {
+          userTask: { x1: 40, w1: 50, x2: 40, w2: 35 },
+          userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
+          serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
+          apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
+          notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 }
+        }[typeKey];
+
+        if (barData) {
+          bar1.setAttribute('x', barData.x1);
+          bar1.setAttribute('y', barData.y1 || 30);
+          bar1.setAttribute('width', barData.w1);
+          bar1.setAttribute('height', 4);
+          bar1.setAttribute('rx', 2);
+          bar1.setAttribute('fill', accent.bar);
+
+          bar2.setAttribute('x', barData.x2);
+          bar2.setAttribute('y', barData.y2 || 40);
+          bar2.setAttribute('width', barData.w2);
+          bar2.setAttribute('height', 4);
+          bar2.setAttribute('rx', 2);
+          bar2.setAttribute('fill', accent.bar);
+
+          svgAppend(bars, bar1);
+          svgAppend(bars, bar2);
+          svgAppend(g, bars);
+        }
+      }
 
       const iconGroup = svgCreate('g');
       if (typeKey === 'userTask') {
@@ -501,59 +537,76 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, clapper);
         svgAppend(iconGroup, wave);
       } else if (typeKey === 'decisionNode') {
-        iconGroup.setAttribute('transform', 'translate(12, 30)');
-        iconGroup.setAttribute('stroke', accent.spine);
-        iconGroup.setAttribute('stroke-width', 2);
-        iconGroup.setAttribute('fill', 'none');
+        const tableG = svgCreate('g');
+        tableG.setAttribute('transform', 'translate(29, 24)');
+        tableG.setAttribute('stroke', '#ab47bc');
+        tableG.setAttribute('stroke-width', 2);
+        tableG.setAttribute('fill', 'none');
+
         const table = svgCreate('rect');
-        table.setAttribute('x', 0);
-        table.setAttribute('y', 0);
         table.setAttribute('width', 22);
         table.setAttribute('height', 20);
         table.setAttribute('rx', 2);
+
         const l1 = svgCreate('line');
         l1.setAttribute('x1', 0);
         l1.setAttribute('y1', 6);
         l1.setAttribute('x2', 22);
         l1.setAttribute('y2', 6);
         l1.setAttribute('stroke-width', 1.5);
+
         const l2 = svgCreate('line');
         l2.setAttribute('x1', 0);
         l2.setAttribute('y1', 13);
         l2.setAttribute('x2', 22);
         l2.setAttribute('y2', 13);
         l2.setAttribute('stroke-width', 1);
+
         const l3 = svgCreate('line');
         l3.setAttribute('x1', 8);
         l3.setAttribute('y1', 0);
         l3.setAttribute('x2', 8);
         l3.setAttribute('y2', 20);
         l3.setAttribute('stroke-width', 1.5);
+
         const c1 = svgCreate('circle');
         c1.setAttribute('cx', 4);
         c1.setAttribute('cy', 10);
         c1.setAttribute('r', 1.5);
-        c1.setAttribute('fill', accent.spine);
+        c1.setAttribute('fill', '#ab47bc');
         c1.setAttribute('stroke', 'none');
+
         const c2 = svgCreate('circle');
         c2.setAttribute('cx', 15);
         c2.setAttribute('cy', 10);
         c2.setAttribute('r', 1.5);
-        c2.setAttribute('fill', accent.spine);
+        c2.setAttribute('fill', '#ab47bc');
         c2.setAttribute('stroke', 'none');
+
         const c3 = svgCreate('circle');
         c3.setAttribute('cx', 4);
         c3.setAttribute('cy', 17);
         c3.setAttribute('r', 1.5);
-        c3.setAttribute('fill', accent.spine);
+        c3.setAttribute('fill', '#ab47bc');
         c3.setAttribute('stroke', 'none');
-        svgAppend(iconGroup, table);
-        svgAppend(iconGroup, l1);
-        svgAppend(iconGroup, l2);
-        svgAppend(iconGroup, l3);
-        svgAppend(iconGroup, c1);
-        svgAppend(iconGroup, c2);
-        svgAppend(iconGroup, c3);
+
+        svgAppend(tableG, table);
+        svgAppend(tableG, l1);
+        svgAppend(tableG, l2);
+        svgAppend(tableG, l3);
+        svgAppend(tableG, c1);
+        svgAppend(tableG, c2);
+        svgAppend(tableG, c3);
+        svgAppend(iconGroup, tableG);
+
+        const bottoms = svgCreate('rect');
+        bottoms.setAttribute('x', 30);
+        bottoms.setAttribute('y', 52);
+        bottoms.setAttribute('width', 20);
+        bottoms.setAttribute('height', 3);
+        bottoms.setAttribute('rx', 1.5);
+        bottoms.setAttribute('fill', '#f3e5f5');
+        svgAppend(iconGroup, bottoms);
       }
 
       svgAppend(g, iconGroup);
