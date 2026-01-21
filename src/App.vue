@@ -331,14 +331,7 @@ const fieldDefs = {
     ...baseFields
   ],
   decisionNode: [
-    { key: 'decision-type', label: 'Decision Tipi', type: 'text' },
-    { key: 'decision-evaluator', label: 'Evaluator', type: 'text' },
-    { key: 'decision-expression', label: 'Expression', type: 'textarea' },
-    { key: 'decision-rules', label: 'Rules', type: 'textarea' },
-    { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
-    { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
-    { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
-    { key: 'timeout-output-way', label: 'Timeout Output Way', type: 'text' },
+    { key: 'decision-rules', label: 'Kurallar (If / Else If)', type: 'decision-table' },
     ...baseFields
   ],
   notificationNode: [
