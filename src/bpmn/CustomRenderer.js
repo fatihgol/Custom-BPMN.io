@@ -422,8 +422,10 @@ export default class CustomRenderer extends BaseRenderer {
           userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
           apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
+          serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
+          apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
-          generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 }
+          // generateDocTask handled manually in iconGroup due to complex structure
         }[typeKey];
 
         if (barData) {

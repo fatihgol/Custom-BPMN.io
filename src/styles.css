@@ -384,6 +384,14 @@ body {
   fill: none;
 }
 
+.palette-entry.generate-doc:hover {
+  color: #009688;
+}
+
+.palette-entry.generate-doc svg {
+  fill: none;
+}
+
 .palette-entry.notification:hover {
   color: var(--color-notify);
 }
