@@ -30,6 +30,16 @@ export const taskTypes = [
     color: '#6366f1'
   },
   {
+    key: 'externalUserTask',
+    label: 'External User Task',
+    type: 'bpmn:UserTask',
+    icon: 'bpmn-icon-user',
+    wait: true,
+    outputs: 'N (event\'ler)',
+    event: 'Evet (WorkflowTaskEvents)',
+    color: '#d81b60'
+  },
+  {
     key: 'serviceTask',
     label: 'Service Task',
     type: 'bpmn:ServiceTask',

@@ -69,6 +69,24 @@
         </button>
 
         <button
+          class="palette-entry external-user"
+          title="Harici Kullanıcı"
+          @mousedown.prevent="(e) => startPaletteAction('externalUserTask', e)"
+        >
+          <svg viewBox="0 0 24 24">
+            <g transform="translate(2, 2)">
+              <circle cx="6" cy="6" r="4" stroke="none" fill="currentColor"/>
+              <path d="M 2,16 C 2,12 4,12 6,12 C 8,12 10,12 10,16" stroke-width="2" fill="none" stroke="currentColor" stroke-linecap="round"/>
+              <g transform="translate(8, 8)">
+                <circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M 1,5 H 9" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M 5,1 C 7,1 7,9 5,9 M 5,1 C 3,1 3,9 5,9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              </g>
+            </g>
+          </svg>
+        </button>
+
+        <button
           class="palette-entry service-task"
           title="Servis Görevi"
           @mousedown.prevent="(e) => startPaletteAction('serviceTask', e)"
@@ -296,7 +314,7 @@ const attributeList = computed(() => currentFields.value.map((f) => `data-${f.ke
 
 const ELEMENT_MAPPING = {
   'bpmn:StartEvent': { 'data-task-type': 'start' },
-  'bpmn:UserTask': { 'data-task-type': ['userTask', 'userGroupTask'] },
+  'bpmn:UserTask': { 'data-task-type': ['userTask', 'userGroupTask', 'externalUserTask'] },
   'bpmn:Task': { 'data-task-type': 'userTask' },
   'bpmn:Task': { 'data-task-type': 'userTask' },
   'bpmn:Task': { 'data-task-type': 'userTask' },
@@ -341,6 +359,27 @@ const fieldDefs = {
     { key: 'assignment-type', label: 'Atama Tipi', type: 'text' },
     { key: 'assignment-value', label: 'Atama Değeri', type: 'text' },
     { key: 'completion-strategy', label: 'Tamamlama Stratejisi', type: 'text' },
+    { key: 'form-key', label: 'Form Key', type: 'text' },
+    { key: 'priority', label: 'Öncelik', type: 'text' },
+    { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
+    { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
+    { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
+    { 
+      key: 'timeout-action', 
+      label: 'Timeout Aksiyonu', 
+      type: 'select',
+      options: [
+        { value: 'reminder', label: 'Hatırlatma' },
+        { value: 'event', label: 'Event Çağırma' }
+      ]
+    },
+    ...baseFields
+  ],
+  externalUserTask: [
+    { key: 'assignment-type', label: 'Atama Tipi', type: 'text' },
+    { key: 'assignment-value', label: 'Atama Değeri', type: 'text' },
+    { key: 'company-name', label: 'Firma Adı', type: 'text' },
+    { key: 'contact-email', label: 'İletişim E-posta', type: 'text' },
     { key: 'form-key', label: 'Form Key', type: 'text' },
     { key: 'priority', label: 'Öncelik', type: 'text' },
     { key: 'customOutputEvents', label: 'Events', type: 'events-table' },

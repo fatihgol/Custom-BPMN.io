@@ -368,6 +368,25 @@ body {
   fill: none;
 }
 
+.palette-entry.external-user:hover {
+  color: #d81b60;
+}
+
+.palette-entry.external-user svg circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+.palette-entry.external-user svg circle[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.palette-entry.external-user svg path {
+  fill: none;
+  stroke: currentColor;
+}
+
 .palette-entry.service-task:hover {
   color: var(--color-service);
 }

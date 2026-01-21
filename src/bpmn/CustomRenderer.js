@@ -19,6 +19,7 @@ const fillByKey = {
   apiCallTask: 'rgba(163, 230, 53, 0.12)',
   generateDocTask: 'rgba(0, 150, 136, 0.12)',
   callActivity: 'rgba(57, 73, 171, 0.12)',
+  externalUserTask: 'rgba(216, 27, 96, 0.12)',
   end: 'rgba(239, 68, 68, 0.12)'
 };
 
@@ -30,7 +31,8 @@ const accentConfig = {
   notificationNode: { spine: '#ffa726', bar: '#fff3e0', dark: '#ef6c00', light: '#ffe0b2' },
   decisionNode: { spine: '#ab47bc', bar: '#f3e5f5' },
   generateDocTask: { spine: '#009688', bar: '#e0f2f1' },
-  callActivity: { spine: '#3949ab', bar: '#e8eaf6' }
+  callActivity: { spine: '#3949ab', bar: '#e8eaf6' },
+  externalUserTask: { spine: '#d81b60', bar: '#fce4ec' }
 };
 
 const renderInlineLabel = (parentNode, text, x, y, maxWidth = 80) => {
@@ -324,7 +326,8 @@ export default class CustomRenderer extends BaseRenderer {
       typeKey === 'decisionNode' ||
       typeKey === 'decisionNode' ||
       typeKey === 'generateDocTask' ||
-      typeKey === 'callActivity'
+      typeKey === 'callActivity' ||
+      typeKey === 'externalUserTask'
     ) {
       const svgRoot = parentNode.ownerSVGElement;
       if (!svgRoot) {
@@ -429,7 +432,8 @@ export default class CustomRenderer extends BaseRenderer {
           apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
           generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-          callActivity: { x1: 45, w1: 45, x2: 45, w2: 30 }
+          callActivity: { x1: 45, w1: 45, x2: 45, w2: 30 },
+          externalUserTask: { x1: 45, w1: 45, x2: 45, w2: 30 }
         }[typeKey];
 
         if (barData) {
@@ -738,7 +742,65 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, dot1);
         svgAppend(iconGroup, box);
         svgAppend(iconGroup, innerLines);
+        svgAppend(iconGroup, lines);
+        svgAppend(iconGroup, dot1);
+        svgAppend(iconGroup, box);
+        svgAppend(iconGroup, innerLines);
         svgAppend(iconGroup, dot2);
+      } else if (typeKey === 'externalUserTask') {
+        iconGroup.setAttribute('transform', 'translate(15, 15)');
+
+        // User Group (Left)
+        const userG = svgCreate('g');
+        userG.setAttribute('transform', 'translate(-2, 0)');
+        const uHead = svgCreate('circle');
+        uHead.setAttribute('cx', 8);
+        uHead.setAttribute('cy', 7);
+        uHead.setAttribute('r', 5);
+        uHead.setAttribute('fill', '#d81b60');
+        const uBody = svgCreate('path');
+        uBody.setAttribute('d', 'M 2,19 C 2,14 4,14 8,14 C 12,14 14,14 14,19');
+        uBody.setAttribute('stroke', '#d81b60');
+        uBody.setAttribute('stroke-width', 2.5);
+        uBody.setAttribute('fill', 'none');
+        uBody.setAttribute('stroke-linecap', 'round');
+        svgAppend(userG, uHead);
+        svgAppend(userG, uBody);
+
+        // Globe Group (Right)
+        const globeG = svgCreate('g');
+        globeG.setAttribute('transform', 'translate(10, 8)');
+        globeG.setAttribute('stroke', '#d81b60');
+        globeG.setAttribute('stroke-width', 1.5);
+        globeG.setAttribute('fill', '#ffffff');
+
+        const gCircle = svgCreate('circle');
+        gCircle.setAttribute('cx', 7);
+        gCircle.setAttribute('cy', 7);
+        gCircle.setAttribute('r', 6);
+
+        const gLine1 = svgCreate('path');
+        gLine1.setAttribute('d', 'M 1,7 H 13');
+        gLine1.setAttribute('stroke-linecap', 'round');
+        gLine1.setAttribute('fill', 'none'); // Ensure no fill for paths
+
+        const gLine2 = svgCreate('path');
+        gLine2.setAttribute('d', 'M 7,1 C 9,3 10,5 10,7 C 10,9 9,11 7,13');
+        gLine2.setAttribute('stroke-linecap', 'round');
+        gLine2.setAttribute('fill', 'none');
+
+        const gLine3 = svgCreate('path');
+        gLine3.setAttribute('d', 'M 7,1 C 5,3 4,5 4,7 C 4,9 5,11 7,13');
+        gLine3.setAttribute('stroke-linecap', 'round');
+        gLine3.setAttribute('fill', 'none');
+
+        svgAppend(globeG, gCircle);
+        svgAppend(globeG, gLine1);
+        svgAppend(globeG, gLine2);
+        svgAppend(globeG, gLine3);
+
+        svgAppend(iconGroup, userG);
+        svgAppend(iconGroup, globeG);
       }
 
       svgAppend(g, iconGroup);
