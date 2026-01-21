@@ -91,11 +91,11 @@ export default class CustomContextPad extends ContextPadProvider {
         }
 
         // We do NOT add append tasks here because user flow is strictly controlled by outputs
-        return actions;
+        // return actions; // Removed to restore custom append actions as per user request
       }
     }
 
-    // If NO custom outputs (or not a task), show rich palette items
+    // Add custom append actions (rich palette items) for all elements
     taskTypes.forEach((task) => {
       // Don't show start event in context pad
       if (task.key === 'start') return;
