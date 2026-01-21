@@ -71,6 +71,11 @@ export default class CustomContextPad extends ContextPadProvider {
         delete actions.connect;
       }
 
+      // Strict rule for StartEvent: Only 1 outgoing connection allowed
+      if (element.type === 'bpmn:StartEvent' && element.outgoing && element.outgoing.length >= 1) {
+        delete actions.connect;
+      }
+
       if (events && events.length > 0) {
         // Get next available event from queue
         const nextEvent = this._getNextAvailableEvent(element, events);
