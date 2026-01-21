@@ -20,7 +20,7 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
                     element.businessObject.$attrs?.['data-event-key'];
 
                 // Check both eventKey AND connection type
-                if (eventKey && connectionType === 'event') {
+                if (eventKey && (connectionType === 'event' || connectionType === 'decision')) {
                     event.preventDefault();
                     event.stopPropagation();
                     this._showEventSwitchPopup(element);
@@ -167,10 +167,22 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             props['data-event-color'] = eventColor;
 
             // Update DI color
-            const di = connection.di;
             if (di) {
                 di.set('stroke', eventColor);
             }
+        }
+
+        // Update condition for decision nodes
+        if (newEvent.condition) {
+            props['data-condition-expression'] = newEvent.condition;
+        } else if (newEvent.type === 'default' || newEvent.type === 'rule') {
+            // If default or rule but no condition (e.g. else), clear condition
+            props['data-condition-expression'] = '';
+        }
+
+        // Update connection type if needed
+        if (newEvent.type === 'rule' || newEvent.type === 'default') {
+            props['data-connection-type'] = 'decision';
         }
 
         this.modeling.updateProperties(connection, props);
@@ -237,7 +249,49 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             return events;
         }
 
+        // Check for Decision Node
+        const isDecisionNode = bo && (
+            bo.$type === 'bpmn:ExclusiveGateway' ||
+            (bo.$attrs && bo.$attrs['data-task-type'] === 'decisionNode')
+        );
+
+        if (isDecisionNode) {
+            return this._getDecisionOutputs(bo);
+        }
+
         return null;
+    }
+
+    _getDecisionOutputs(bo) {
+        // 1. Get defined rules
+        const rawRules = bo.$attrs && bo.$attrs['data-decision-rules'];
+        let rules = [];
+        if (rawRules) {
+            try {
+                rules = JSON.parse(rawRules);
+            } catch (e) { }
+        }
+
+        // 2. Map rules to output objects
+        const outputs = rules.map((r, i) => ({
+            name: r.label || `Kural ${i + 1}`,
+            key: `rule_${i}`,
+            condition: r.condition,
+            type: 'rule',
+            icon: 'question',
+            color: '#ab47bc'
+        }));
+
+        // 3. ALWAYS add Default (Else) path at the end
+        outputs.push({
+            name: 'Else (Diğer)',
+            key: 'default',
+            type: 'default',
+            icon: 'random',
+            color: '#7e22ce'
+        });
+
+        return outputs;
     }
 }
 
