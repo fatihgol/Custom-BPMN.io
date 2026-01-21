@@ -619,7 +619,7 @@ const loadCustomFields = (element, taskKey) => {
     
     if (field.type === 'checkbox') {
       acc[field.key] = val === 'true' || val === true;
-    } else if (field.type === 'events-table' || field.type === 'decision-table') {
+    } else if (field.type === 'events-table' || field.type === 'decision-table' || field.type === 'key-value-table') {
       // JSON parse for events
       try {
         acc[field.key] = val ? JSON.parse(val) : [];
@@ -628,7 +628,7 @@ const loadCustomFields = (element, taskKey) => {
       }
       
       // Add default events for UserTask and UserGroupTask if empty
-      if ((taskKey === 'userTask' || taskKey === 'userGroupTask') && acc[field.key].length === 0) {
+      if ((field.type === 'events-table') && (taskKey === 'userTask' || taskKey === 'userGroupTask') && acc[field.key].length === 0) {
         acc[field.key] = [
           { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
           { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
@@ -655,6 +655,13 @@ const addDecisionRule = (fieldKey) => {
   formState.value.fields[fieldKey].push({ label: '', condition: '' });
 };
 
+const addKeyValue = (fieldKey) => {
+  if (!formState.value.fields[fieldKey]) {
+    formState.value.fields[fieldKey] = [];
+  }
+  formState.value.fields[fieldKey].push({ key: '', value: '' });
+};
+
 const removeEvent = (fieldKey, idx) => {
   if (formState.value.fields[fieldKey]) {
     formState.value.fields[fieldKey].splice(idx, 1);
@@ -677,7 +684,7 @@ const saveModal = () => {
     
     if (field.type === 'checkbox') {
       val = val ? 'true' : 'false';
-    } else if (field.type === 'events-table' || field.type === 'decision-table') {
+    } else if (field.type === 'events-table' || field.type === 'decision-table' || field.type === 'key-value-table') {
       val = val && val.length > 0 ? JSON.stringify(val) : '';
     }
     
