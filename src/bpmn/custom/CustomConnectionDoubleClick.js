@@ -263,6 +263,19 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
     }
 
     _getDecisionOutputs(bo) {
+        const DECISION_COLORS = [
+            '#2563eb', // Blue
+            '#4b5563', // Gray
+            '#0891b2', // Teal
+            '#4f46e5', // Indigo
+            '#334155', // Slate
+            '#0284c7', // Sky Blue
+            '#525252', // Neutral Gray
+            '#0d9488', // Teal Dark
+            '#4338ca', // Indigo Dark
+            '#1e293b'  // Slate Dark
+        ];
+
         // 1. Get defined rules
         const rawRules = bo.$attrs && bo.$attrs['data-decision-rules'];
         let rules = [];
@@ -279,7 +292,7 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             condition: r.condition,
             type: 'rule',
             icon: 'question',
-            color: '#ab47bc'
+            color: DECISION_COLORS[i % DECISION_COLORS.length]
         }));
 
         // 3. ALWAYS add Default (Else) path at the end
@@ -288,7 +301,7 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             key: 'default',
             type: 'default',
             icon: 'random',
-            color: '#7e22ce'
+            color: '#000000'
         });
 
         return outputs;
