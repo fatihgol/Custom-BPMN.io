@@ -325,15 +325,11 @@ export default class CustomContextPad extends ContextPadProvider {
   _getDecisionOutputs(bo) {
     const DECISION_COLORS = [
       '#64b5f6', // Light Blue
-      '#42a5f5',
-      '#2196f3',
-      '#1e88e5',
-      '#1976d2',
-      '#1565c0',
-      '#0d47a1',
-      '#0a3d91',
-      '#08337a',
-      '#052863'  // Darkest Navy
+      '#2196f3', // Blue
+      '#1976d2', // Dark Blue
+      '#0d47a1', // Navy
+      '#0a3d91', // Deep Navy
+      '#052863'  // Darkest
     ];
 
     // 1. Get defined rules
