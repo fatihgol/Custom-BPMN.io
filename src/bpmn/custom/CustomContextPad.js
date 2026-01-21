@@ -156,7 +156,10 @@ export default class CustomContextPad extends ContextPadProvider {
         label: label, // Critical: pass label here for CustomConnectionBehavior
         eventKey: eventData.key,
         eventIcon: eventData.icon,
-        eventColor: eventData.color
+        eventColor: eventData.color,
+        // For decision nodes
+        condition: eventData.condition,
+        connectionType: eventData.type === 'rule' || eventData.type === 'default' ? 'decision' : 'event'
       };
     } else if (typeof eventData === 'string') {
       element._pendingEventMetadata = {
@@ -258,6 +261,15 @@ export default class CustomContextPad extends ContextPadProvider {
       (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
     );
 
+    const isDecisionNode = bo && (
+      bo.$type === 'bpmn:ExclusiveGateway' ||
+      (bo.$attrs && bo.$attrs['data-task-type'] === 'decisionNode')
+    );
+
+    if (isDecisionNode) {
+      return this._getDecisionOutputs(bo);
+    }
+
     // Return default events for UserTask and UserGroupTask if no custom events found
     let events = null;
     if (isUserTask || isUserGroupTask) {
@@ -308,6 +320,38 @@ export default class CustomContextPad extends ContextPadProvider {
     }
 
     return null;
+  }
+
+  _getDecisionOutputs(bo) {
+    // 1. Get defined rules
+    const rawRules = bo.$attrs && bo.$attrs['data-decision-rules'];
+    let rules = [];
+    if (rawRules) {
+      try {
+        rules = JSON.parse(rawRules);
+      } catch (e) { }
+    }
+
+    // 2. Map rules to output objects, using 'condition' as key if needed, or generate ID
+    const outputs = rules.map((r, i) => ({
+      name: r.label || `Kural ${i + 1}`,
+      key: `rule_${i}`,
+      condition: r.condition,
+      type: 'rule',
+      icon: 'question',
+      color: '#ab47bc'
+    }));
+
+    // 3. ALWAYS add Default (Else) path at the end
+    outputs.push({
+      name: 'Else (Diğer)',
+      key: 'default',
+      type: 'default',
+      icon: 'random',
+      color: '#7e22ce' // Darker purple
+    });
+
+    return outputs;
   }
 }
 

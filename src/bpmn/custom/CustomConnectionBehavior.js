@@ -20,8 +20,14 @@ export default class CustomConnectionBehavior extends CommandInterceptor {
           props.name = eventMetadata.label;
         }
 
-        // Set connection type as 'event'
-        props['data-connection-type'] = 'event';
+        // Set connection type from metadata or default to 'event'
+        props['data-connection-type'] = eventMetadata.connectionType || 'event';
+
+        // Store condition expression for decision nodes
+        if (eventMetadata.condition) {
+          props['data-condition-expression'] = eventMetadata.condition;
+        }
+
 
         // Store metadata as custom attributes
         if (eventMetadata.eventKey) {
