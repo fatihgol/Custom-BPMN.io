@@ -605,5 +605,5 @@ button.secondary.small:hover {
 .djs-context-pad .group[data-group='model'] {
   display: grid !important;
   grid-template-columns: repeat(2, 40px);
-  gap: 4px;
+  gap: 4px 0px;
 }

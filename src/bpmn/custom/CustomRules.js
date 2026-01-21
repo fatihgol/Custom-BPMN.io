@@ -18,6 +18,16 @@ export default class CustomRules extends RuleProvider {
       const fromContextPad = !!context.hints?.label;
       return fromContextPad ? true : false;
     });
+
+    // StartEvent: Sadece 1 output bağlantısı olabilir
+    this.addRule('connection.create', 2000, (context) => {
+      const { source } = context;
+      if (source.type === 'bpmn:StartEvent') {
+        if (source.outgoing && source.outgoing.length >= 1) {
+          return false;
+        }
+      }
+    });
   }
 
   _isTask(element) {
