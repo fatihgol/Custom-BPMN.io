@@ -76,6 +76,11 @@ export default class CustomContextPad extends ContextPadProvider {
         delete actions.connect;
       }
 
+      // EndEvent should NOT have outgoing connections
+      if (element.type === 'bpmn:EndEvent') {
+        delete actions.connect;
+      }
+
       if (events && events.length > 0) {
         // Get next available event from queue
         const nextEvent = this._getNextAvailableEvent(element, events);
