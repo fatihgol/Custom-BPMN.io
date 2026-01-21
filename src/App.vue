@@ -136,7 +136,6 @@
               <circle cx="15" cy="10" r="1.5" stroke="none" />
               <circle cx="4" cy="17" r="1.5" stroke="none" />
             </g>
-            </g>
           </svg>
         </button>
 
