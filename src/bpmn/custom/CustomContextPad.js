@@ -361,7 +361,7 @@ export default class CustomContextPad extends ContextPadProvider {
       key: 'default',
       type: 'default',
       icon: 'random',
-      color: '#000000' // Default black/existing color
+      color: '#7e22ce' // Darker purple
     });
 
     return outputs;

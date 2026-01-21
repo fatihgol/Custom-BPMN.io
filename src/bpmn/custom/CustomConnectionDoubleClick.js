@@ -301,7 +301,7 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
             key: 'default',
             type: 'default',
             icon: 'random',
-            color: '#000000'
+            color: '#7e22ce'
         });
 
         return outputs;
