@@ -264,16 +264,16 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
 
     _getDecisionOutputs(bo) {
         const DECISION_COLORS = [
-            '#2563eb', // Blue
-            '#4b5563', // Gray
-            '#0891b2', // Teal
-            '#4f46e5', // Indigo
-            '#334155', // Slate
-            '#0284c7', // Sky Blue
-            '#525252', // Neutral Gray
-            '#0d9488', // Teal Dark
-            '#4338ca', // Indigo Dark
-            '#1e293b'  // Slate Dark
+            '#64b5f6', // Light Blue
+            '#42a5f5',
+            '#2196f3',
+            '#1e88e5',
+            '#1976d2',
+            '#1565c0',
+            '#0d47a1',
+            '#0a3d91',
+            '#08337a',
+            '#052863'  // Darkest Navy
         ];
 
         // 1. Get defined rules
