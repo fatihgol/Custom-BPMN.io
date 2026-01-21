@@ -555,7 +555,12 @@ const startPaletteAction = (taskKey, event) => {
   businessObject.set('data-task-type', task.key);
   businessObject.name = task.label;
 
-  const shape = services.value.elementFactory.createShape({ type: task.type, businessObject });
+  const options = { type: task.type, businessObject };
+  if (taskKey === 'decisionNode') {
+    options.width = 80;
+    options.height = 80;
+  }
+  const shape = services.value.elementFactory.createShape(options);
   services.value.create.start(event, shape);
   const canvas = modeler.value.get('canvas');
   // marker kaldırıldı

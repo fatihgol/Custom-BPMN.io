@@ -135,10 +135,17 @@ export default class CustomContextPad extends ContextPadProvider {
     bo.set('data-task-type', task.key);
     bo.name = task.label;
 
-    const shape = this.elementFactory.createShape({
+    const options = {
       type: task.type,
       businessObject: bo
-    });
+    };
+
+    if (task.key === 'decisionNode') {
+      options.width = 80;
+      options.height = 80;
+    }
+
+    const shape = this.elementFactory.createShape(options);
 
     this.create.start(event, shape, element);
   }
