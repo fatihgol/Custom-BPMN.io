@@ -165,11 +165,8 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
 
         if (eventColor) {
             props['data-event-color'] = eventColor;
-
-            // Update DI color
-            if (di) {
-                di.set('stroke', eventColor);
-            }
+        } else {
+            props['data-event-color'] = '';
         }
 
         // Update condition for decision nodes
@@ -187,15 +184,8 @@ export default class CustomConnectionDoubleClick extends CommandInterceptor {
 
         this.modeling.updateProperties(connection, props);
 
-        // Force visual update
-        if (eventColor) {
-            const gfx = this.canvas.getGraphics(connection);
-            if (gfx) {
-                const path = gfx.querySelector('path');
-                if (path) {
-                    path.setAttribute('stroke', eventColor);
-                }
-            }
+        if (typeof this.modeling.setColor === 'function') {
+            this.modeling.setColor(connection, { stroke: eventColor || undefined });
         }
     }
 

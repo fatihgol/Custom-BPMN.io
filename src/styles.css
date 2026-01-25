@@ -177,10 +177,10 @@ body {
   border-color: #818cf8;
 }
 
-.djs-palette .entry.custom-serviceTask {
-  background: linear-gradient(135deg, #fff7ed, #fed7aa);
-  color: #f59e0b;
-  border-color: #f59e0b;
+.djs-palette .entry.custom-integrationWaitTask {
+  background: linear-gradient(135deg, #ede7f6, #d1c4e9);
+  color: #673ab7;
+  border-color: #5e35b1;
 }
 
 .djs-palette .entry.custom-decisionNode {
@@ -387,11 +387,23 @@ body {
   stroke: currentColor;
 }
 
-.palette-entry.service-task:hover {
-  color: var(--color-service);
+.palette-entry.form-object:hover {
+  color: #FF7043;
 }
 
-.palette-entry.service-task svg {
+.palette-entry.form-object svg {
+  fill: none;
+}
+
+.context-pad .entry.form-object:hover {
+  color: #FF7043 !important;
+}
+
+.palette-entry.integration-wait:hover {
+  color: #673ab7;
+}
+
+.palette-entry.integration-wait svg {
   fill: none;
 }
 

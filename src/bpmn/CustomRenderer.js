@@ -13,26 +13,28 @@ const fillByKey = {
   start: 'rgba(34, 197, 94, 0.12)',
   userTask: 'rgba(14, 165, 233, 0.12)',
   userGroupTask: 'rgba(99, 102, 241, 0.12)',
-  serviceTask: 'rgba(245, 158, 11, 0.12)',
+  integrationWaitTask: 'rgba(103, 58, 183, 0.12)',
   decisionNode: 'rgba(236, 72, 153, 0.12)',
   notificationNode: 'rgba(34, 211, 238, 0.12)',
   apiCallTask: 'rgba(163, 230, 53, 0.12)',
   generateDocTask: 'rgba(0, 150, 136, 0.12)',
   callActivity: 'rgba(57, 73, 171, 0.12)',
   externalUserTask: 'rgba(216, 27, 96, 0.12)',
+  formObject: 'rgba(255, 112, 67, 0.12)',
   end: 'rgba(239, 68, 68, 0.12)'
 };
 
 const accentConfig = {
   userTask: { spine: '#42a5f5', bar: '#e3f2fd' },
   userGroupTask: { spine: '#5c6bc0', bar: '#e8eaf6', secondary: '#9fa8da' },
-  serviceTask: { spine: '#78909c', bar: '#eceff1' },
+  integrationWaitTask: { spine: '#673ab7', bar: '#d1c4e9', secondary: '#b39ddb' },
   apiCallTask: { spine: '#26c6da', bar: '#e0f7fa' },
   notificationNode: { spine: '#ffa726', bar: '#fff3e0', dark: '#ef6c00', light: '#ffe0b2' },
   decisionNode: { spine: '#ab47bc', bar: '#f3e5f5' },
   generateDocTask: { spine: '#009688', bar: '#e0f2f1' },
   callActivity: { spine: '#3949ab', bar: '#e8eaf6' },
-  externalUserTask: { spine: '#d81b60', bar: '#fce4ec' }
+  externalUserTask: { spine: '#d81b60', bar: '#fce4ec' },
+  formObject: { spine: '#e64a19', bar: '#ffccbc' }
 };
 
 const renderInlineLabel = (parentNode, text, x, y, maxWidth = 80) => {
@@ -89,7 +91,8 @@ export default class CustomRenderer extends BaseRenderer {
       'bpmn:SendTask',
       'bpmn:StartEvent',
       'bpmn:EndEvent',
-      'bpmn:ExclusiveGateway'
+      'bpmn:ExclusiveGateway',
+      'bpmn:DataObjectReference'
     ]);
   }
 
@@ -106,14 +109,23 @@ export default class CustomRenderer extends BaseRenderer {
         'bpmn:EndEvent': 'end',
         'bpmn:UserTask': 'userTask',
         'bpmn:Task': 'userTask',
-        'bpmn:ServiceTask': 'serviceTask',
+        'bpmn:ServiceTask': 'integrationWaitTask',
         'bpmn:ExclusiveGateway': 'decisionNode',
         'bpmn:SendTask': 'notificationNode'
       };
       typeKey = fallbackMap[element.type];
     }
+
+    if (!typeKey && element.type === 'bpmn:DataObjectReference') {
+      typeKey = 'formObject';
+    }
+
     if (!typeKey) {
       typeKey = 'userTask';
+    }
+
+    if (typeKey === 'serviceTask') {
+      typeKey = 'integrationWaitTask';
     }
 
     if (element.type === 'bpmn:StartEvent' || typeKey === 'start') {
@@ -320,14 +332,15 @@ export default class CustomRenderer extends BaseRenderer {
     if (
       typeKey === 'userTask' ||
       typeKey === 'userGroupTask' ||
-      typeKey === 'serviceTask' ||
+      typeKey === 'integrationWaitTask' ||
       typeKey === 'apiCallTask' ||
       typeKey === 'notificationNode' ||
       typeKey === 'decisionNode' ||
-      typeKey === 'decisionNode' ||
       typeKey === 'generateDocTask' ||
       typeKey === 'callActivity' ||
-      typeKey === 'externalUserTask'
+      typeKey === 'externalUserTask' ||
+      typeKey === 'formObject' ||
+      element.type === 'bpmn:DataObjectReference'
     ) {
       const svgRoot = parentNode.ownerSVGElement;
       if (!svgRoot) {
@@ -358,8 +371,8 @@ export default class CustomRenderer extends BaseRenderer {
         parentNode.removeChild(parentNode.firstChild);
       }
 
-      const baseW = typeKey === 'decisionNode' ? 80 : 100;
-      const baseH = 80;
+      const baseW = typeKey === 'decisionNode' ? 80 : (typeKey === 'formObject' ? 40 : 100);
+      const baseH = typeKey === 'formObject' ? 50 : 80;
       const w = element.width || baseW;
       const h = element.height || baseH;
       const scaleX = w / baseW;
@@ -402,6 +415,132 @@ export default class CustomRenderer extends BaseRenderer {
         diamond.setAttribute('stroke-width', 3);
         diamond.setAttribute('filter', `url(#${filterId})`);
         svgAppend(g, diamond);
+      } else if (typeKey === 'formObject' || element.type === 'bpmn:DataObjectReference') {
+        const filterId = 'form-shadow';
+        if (!defs.querySelector(`#${filterId}`)) {
+          const filter = svgCreate('filter');
+          filter.setAttribute('id', filterId);
+          filter.setAttribute('x', '-20%');
+          filter.setAttribute('y', '-20%');
+          filter.setAttribute('width', '140%');
+          filter.setAttribute('height', '140%');
+
+          const dropShadow = svgCreate('feDropShadow');
+          dropShadow.setAttribute('dx', '0');
+          dropShadow.setAttribute('dy', '2');
+          dropShadow.setAttribute('stdDeviation', '1.5');
+          dropShadow.setAttribute('flood-color', '#FF7043');
+          dropShadow.setAttribute('flood-opacity', '0.2');
+
+          svgAppend(filter, dropShadow);
+          svgAppend(defs, filter);
+        }
+
+        const baseBox = svgCreate('rect');
+        baseBox.setAttribute('x', 2);
+        baseBox.setAttribute('y', 2);
+        baseBox.setAttribute('width', 36);
+        baseBox.setAttribute('height', 46);
+        baseBox.setAttribute('rx', 3);
+        baseBox.setAttribute('ry', 3);
+        baseBox.setAttribute('fill', '#ffffff');
+        baseBox.setAttribute('stroke', '#e64a19');
+        baseBox.setAttribute('stroke-width', 1);
+        baseBox.setAttribute('filter', `url(#${filterId})`);
+        svgAppend(g, baseBox);
+      } else if (typeKey === 'integrationWaitTask') {
+        const outer = svgCreate('rect');
+        outer.setAttribute('x', 1);
+        outer.setAttribute('y', 1);
+        outer.setAttribute('width', baseW - 2);
+        outer.setAttribute('height', baseH - 2);
+        outer.setAttribute('rx', 8);
+        outer.setAttribute('ry', 8);
+        outer.setAttribute('fill', '#ffffff');
+        outer.setAttribute('stroke', '#e0e0e0');
+        outer.setAttribute('stroke-width', 1);
+        svgAppend(g, outer);
+
+        const spine = svgCreate('path');
+        spine.setAttribute('d', 'M 5,1 A 8,8 0 0 0 1,9 V 71 A 8,8 0 0 0 5,79');
+        spine.setAttribute('stroke', '#673ab7');
+        spine.setAttribute('stroke-width', 6);
+        spine.setAttribute('fill', 'none');
+        svgAppend(g, spine);
+
+        const nodesGroup = svgCreate('g');
+        nodesGroup.setAttribute('transform', 'translate(15, 8)');
+
+        const mesh = svgCreate('path');
+        mesh.setAttribute('d', 'M 4,6 L 10,10 M 20,10 L 26,6 M 4,18 L 10,14 M 20,14 L 26,18');
+        mesh.setAttribute('stroke', '#b39ddb');
+        mesh.setAttribute('stroke-width', 1.5);
+        mesh.setAttribute('stroke-linecap', 'round');
+        svgAppend(nodesGroup, mesh);
+
+        const dotCoords = [
+          [3, 5],
+          [27, 5],
+          [3, 19],
+          [27, 19]
+        ];
+        dotCoords.forEach(([cx, cy]) => {
+          const dot = svgCreate('circle');
+          dot.setAttribute('cx', cx);
+          dot.setAttribute('cy', cy);
+          dot.setAttribute('r', 2);
+          dot.setAttribute('fill', '#b39ddb');
+          svgAppend(nodesGroup, dot);
+        });
+
+        const hourglass = svgCreate('g');
+        hourglass.setAttribute('transform', 'translate(10, 4)');
+
+        const frameLines = svgCreate('path');
+        frameLines.setAttribute('d', 'M 2,0 H 10 M 2,16 H 10');
+        frameLines.setAttribute('stroke', '#673ab7');
+        frameLines.setAttribute('stroke-width', 2);
+        frameLines.setAttribute('stroke-linecap', 'round');
+        svgAppend(hourglass, frameLines);
+
+        const hourPaths = svgCreate('path');
+        hourPaths.setAttribute('d', 'M 2,0 L 6,8 L 2,16 M 10,0 L 6,8 L 10,16');
+        hourPaths.setAttribute('fill', '#ede7f6');
+        hourPaths.setAttribute('stroke', '#673ab7');
+        hourPaths.setAttribute('stroke-width', 2);
+        hourPaths.setAttribute('stroke-linejoin', 'round');
+        svgAppend(hourglass, hourPaths);
+
+        const stem = svgCreate('line');
+        stem.setAttribute('x1', 6);
+        stem.setAttribute('y1', 8);
+        stem.setAttribute('x2', 6);
+        stem.setAttribute('y2', 11);
+        stem.setAttribute('stroke', '#673ab7');
+        stem.setAttribute('stroke-width', 1.5);
+        svgAppend(hourglass, stem);
+
+        svgAppend(nodesGroup, hourglass);
+        svgAppend(g, nodesGroup);
+
+        const bar1 = svgCreate('rect');
+        bar1.setAttribute('x', 45);
+        bar1.setAttribute('y', 15);
+        bar1.setAttribute('width', 45);
+        bar1.setAttribute('height', 4);
+        bar1.setAttribute('rx', 2);
+        bar1.setAttribute('fill', '#d1c4e9');
+
+        const bar2 = svgCreate('rect');
+        bar2.setAttribute('x', 45);
+        bar2.setAttribute('y', 25);
+        bar2.setAttribute('width', 30);
+        bar2.setAttribute('height', 4);
+        bar2.setAttribute('rx', 2);
+        bar2.setAttribute('fill', '#d1c4e9');
+
+        svgAppend(g, bar1);
+        svgAppend(g, bar2);
       } else {
         const outer = svgCreate('rect');
         outer.setAttribute('x', 1);
@@ -428,7 +567,6 @@ export default class CustomRenderer extends BaseRenderer {
         const barData = {
           userTask: { x1: 40, w1: 50, x2: 40, w2: 35 },
           userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-          serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
           apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
           notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
           generateDocTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
@@ -438,14 +576,14 @@ export default class CustomRenderer extends BaseRenderer {
 
         if (barData) {
           bar1.setAttribute('x', barData.x1);
-          bar1.setAttribute('y', barData.y1 || 30);
+          bar1.setAttribute('y', barData.y1 || 15);
           bar1.setAttribute('width', barData.w1);
           bar1.setAttribute('height', 4);
           bar1.setAttribute('rx', 2);
           bar1.setAttribute('fill', accent.bar);
 
           bar2.setAttribute('x', barData.x2);
-          bar2.setAttribute('y', barData.y2 || 40);
+          bar2.setAttribute('y', barData.y2 || 25);
           bar2.setAttribute('width', barData.w2);
           bar2.setAttribute('height', 4);
           bar2.setAttribute('rx', 2);
@@ -457,9 +595,13 @@ export default class CustomRenderer extends BaseRenderer {
         }
       }
 
-      const iconGroup = svgCreate('g');
-      if (typeKey === 'userTask') {
-        iconGroup.setAttribute('transform', 'translate(15, 15)');
+      let iconGroup = null;
+      if (typeKey !== 'integrationWaitTask') {
+        iconGroup = svgCreate('g');
+      }
+
+      if (iconGroup && typeKey === 'userTask') {
+        iconGroup.setAttribute('transform', 'translate(15, 8)');
         const head = svgCreate('circle');
         head.setAttribute('cx', 10);
         head.setAttribute('cy', 7);
@@ -473,8 +615,8 @@ export default class CustomRenderer extends BaseRenderer {
         body.setAttribute('stroke-linecap', 'round');
         svgAppend(iconGroup, head);
         svgAppend(iconGroup, body);
-      } else if (typeKey === 'userGroupTask') {
-        iconGroup.setAttribute('transform', 'translate(14, 15)');
+      } else if (iconGroup && typeKey === 'userGroupTask') {
+        iconGroup.setAttribute('transform', 'translate(14, 8)');
         const headBack = svgCreate('circle');
         headBack.setAttribute('cx', 15);
         headBack.setAttribute('cy', 7);
@@ -501,25 +643,8 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, bodyBack);
         svgAppend(iconGroup, headFront);
         svgAppend(iconGroup, bodyFront);
-      } else if (typeKey === 'serviceTask') {
-        iconGroup.setAttribute('transform', 'translate(15, 15)');
-        iconGroup.setAttribute('fill', 'none');
-        iconGroup.setAttribute('stroke', accent.spine);
-        iconGroup.setAttribute('stroke-width', 2.5);
-        const gearCircle = svgCreate('circle');
-        gearCircle.setAttribute('cx', 12);
-        gearCircle.setAttribute('cy', 12);
-        gearCircle.setAttribute('r', 5);
-        const gearPath = svgCreate('path');
-        gearPath.setAttribute(
-          'd',
-          'M12 2V5 M12 19V22 M2 12H5 M19 12H22 M4.9 4.9L7 7 M17 17L19.1 19.1 M4.9 19.1L7 17 M17 7L19.1 4.9'
-        );
-        gearPath.setAttribute('stroke-linecap', 'round');
-        svgAppend(iconGroup, gearCircle);
-        svgAppend(iconGroup, gearPath);
-      } else if (typeKey === 'apiCallTask') {
-        iconGroup.setAttribute('transform', 'translate(15, 18)');
+      } else if (iconGroup && typeKey === 'apiCallTask') {
+        iconGroup.setAttribute('transform', 'translate(15, 10)');
         iconGroup.setAttribute('stroke', accent.spine);
         iconGroup.setAttribute('stroke-width', 2.5);
         iconGroup.setAttribute('stroke-linecap', 'round');
@@ -532,8 +657,8 @@ export default class CustomRenderer extends BaseRenderer {
         path2.setAttribute('fill', 'none');
         svgAppend(iconGroup, path1);
         svgAppend(iconGroup, path2);
-      } else if (typeKey === 'notificationNode') {
-        iconGroup.setAttribute('transform', 'translate(16, 15)');
+      } else if (iconGroup && typeKey === 'notificationNode') {
+        iconGroup.setAttribute('transform', 'translate(16, 8)');
         const bell = svgCreate('path');
         bell.setAttribute('d', 'M12 3A6 6 0 0 0 6 9v7l-3 3h18l-3-3V9a6 6 0 0 0-6-6z');
         bell.setAttribute('fill', accent.spine);
@@ -549,7 +674,7 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, bell);
         svgAppend(iconGroup, clapper);
         svgAppend(iconGroup, wave);
-      } else if (typeKey === 'decisionNode') {
+      } else if (iconGroup && typeKey === 'decisionNode') {
         const tableG = svgCreate('g');
         tableG.setAttribute('transform', 'translate(29, 24)');
         tableG.setAttribute('stroke', '#ab47bc');
@@ -620,7 +745,7 @@ export default class CustomRenderer extends BaseRenderer {
         bottoms.setAttribute('rx', 1.5);
         bottoms.setAttribute('fill', '#f3e5f5');
         svgAppend(iconGroup, bottoms);
-      } else if (typeKey === 'generateDocTask') {
+      } else if (iconGroup && typeKey === 'generateDocTask') {
         // Spine (Left bar)
         // Already drawn by generic logic? No, generic logic draws a generic spine. 
         // The generic logic draws `const spine = svgCreate('path'); ...` at lines 408-410.
@@ -633,9 +758,9 @@ export default class CustomRenderer extends BaseRenderer {
         // User SVG has bars at: x=45 y=30 w=45 and x=45 y=40 w=30.
         // Let's Add barData for generateDocTask to generic logic instead of here.
 
-        // So here only the ICON part (translate(18, 15)) is needed.
+        // So here only the ICON part (translate(18, 8)) is needed.
 
-        iconGroup.setAttribute('transform', 'translate(18, 15)');
+        iconGroup.setAttribute('transform', 'translate(18, 8)');
 
         const docFrame = svgCreate('path');
         docFrame.setAttribute('d', 'M 4,1 L 15,1 L 20,6 L 20,23 L 4,23 Z');
@@ -693,8 +818,8 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, docDashed);
         svgAppend(iconGroup, docDashed);
         svgAppend(iconGroup, arrowG);
-      } else if (typeKey === 'callActivity') {
-        iconGroup.setAttribute('transform', 'translate(15, 15)');
+      } else if (iconGroup && typeKey === 'callActivity') {
+        iconGroup.setAttribute('transform', 'translate(15, 8)');
 
         // Main Lines
         const lines = svgCreate('path');
@@ -747,8 +872,8 @@ export default class CustomRenderer extends BaseRenderer {
         svgAppend(iconGroup, box);
         svgAppend(iconGroup, innerLines);
         svgAppend(iconGroup, dot2);
-      } else if (typeKey === 'externalUserTask') {
-        iconGroup.setAttribute('transform', 'translate(15, 15)');
+      } else if (iconGroup && typeKey === 'externalUserTask') {
+        iconGroup.setAttribute('transform', 'translate(15, 8)');
 
         // User Group (Left)
         const userG = svgCreate('g');
@@ -801,13 +926,69 @@ export default class CustomRenderer extends BaseRenderer {
 
         svgAppend(iconGroup, userG);
         svgAppend(iconGroup, globeG);
+      } else if (iconGroup && (typeKey === 'formObject' || element.type === 'bpmn:DataObjectReference')) {
+        // Double-check: stroke-width, fill, etc. to match XML exactly.
+        const header = svgCreate('path');
+        header.setAttribute('d', 'M 2,5 A 3,3 0 0 1 5,2 H 35 A 3,3 0 0 1 38,5 V 10 H 2 V 5 Z');
+        header.setAttribute('fill', '#FF7043');
+        header.setAttribute('stroke', 'none');
+        svgAppend(iconGroup, header);
+
+        const contentG = svgCreate('g');
+        contentG.setAttribute('transform', 'translate(0, 4)');
+
+        // Checkbox group
+        const checkRect = svgCreate('rect');
+        checkRect.setAttribute('x', 6); checkRect.setAttribute('y', 15);
+        checkRect.setAttribute('width', 6); checkRect.setAttribute('height', 6);
+        checkRect.setAttribute('rx', 1); checkRect.setAttribute('fill', '#ffe0b2');
+        checkRect.setAttribute('stroke', '#FF7043'); checkRect.setAttribute('stroke-width', 1);
+        svgAppend(contentG, checkRect);
+
+        const checkMark = svgCreate('path');
+        checkMark.setAttribute('d', 'M 7,18 L 9,20 L 11,16');
+        checkMark.setAttribute('fill', 'none'); checkMark.setAttribute('stroke', '#FF7043');
+        checkMark.setAttribute('stroke-width', 1.5); checkMark.setAttribute('stroke-linecap', 'round');
+        checkMark.setAttribute('stroke-linejoin', 'round');
+        svgAppend(contentG, checkMark);
+
+        const checkLine = svgCreate('rect');
+        checkLine.setAttribute('x', 14); checkLine.setAttribute('y', 17);
+        checkLine.setAttribute('width', 18); checkLine.setAttribute('height', 2);
+        checkLine.setAttribute('rx', 0.5); checkLine.setAttribute('fill', '#ffccbc');
+        svgAppend(contentG, checkLine);
+
+        // Text input group
+        const labelLine = svgCreate('rect');
+        labelLine.setAttribute('x', 6); labelLine.setAttribute('y', 26);
+        labelLine.setAttribute('width', 14); labelLine.setAttribute('height', 2);
+        labelLine.setAttribute('rx', 0.5); labelLine.setAttribute('fill', '#ffccbc');
+        svgAppend(contentG, labelLine);
+
+        const inputRect = svgCreate('rect');
+        inputRect.setAttribute('x', 6); inputRect.setAttribute('y', 30);
+        inputRect.setAttribute('width', 28); inputRect.setAttribute('height', 8);
+        inputRect.setAttribute('rx', 2); inputRect.setAttribute('fill', '#fff3e0');
+        inputRect.setAttribute('stroke', '#ffab91'); inputRect.setAttribute('stroke-width', 1);
+        svgAppend(contentG, inputRect);
+
+        // Button
+        const btn = svgCreate('rect');
+        btn.setAttribute('x', 24); btn.setAttribute('y', 41);
+        btn.setAttribute('width', 10); btn.setAttribute('height', 4);
+        btn.setAttribute('rx', 2); btn.setAttribute('fill', '#FF7043');
+        svgAppend(contentG, btn);
+
+        svgAppend(iconGroup, contentG);
       }
 
-      svgAppend(g, iconGroup);
+      if (iconGroup) {
+        svgAppend(g, iconGroup);
+      }
       svgAppend(parentNode, g);
       parentNode.style.filter = 'drop-shadow(0 4px 12px rgba(15, 23, 42, 0.15))';
-      if (typeKey !== 'decisionNode') {
-        renderInlineLabel(parentNode, bo.name, w / 2, h - 14, w - 20);
+      if (typeKey !== 'decisionNode' && typeKey !== 'formObject' && element.type !== 'bpmn:DataObjectReference') {
+        renderInlineLabel(parentNode, bo.name, w / 2, h - 22, w - 20);
       }
 
       return parentNode;

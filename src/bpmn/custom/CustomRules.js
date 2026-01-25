@@ -18,31 +18,40 @@ export default class CustomRules extends RuleProvider {
       const fromContextPad = !!context.hints?.label;
       return fromContextPad ? true : false;
     });
-
-    // StartEvent: Sadece 1 output bağlantısı olabilir
-    this.addRule('connection.create', 2000, (context) => {
-      const { source } = context;
-      if (source.type === 'bpmn:StartEvent') {
-        if (source.outgoing && source.outgoing.length >= 1) {
-          return false;
-        }
-      }
-    });
   }
 
   _isTask(element) {
-    return isAny(element, ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask']);
+    return isAny(element, ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask', 'bpmn:StartEvent']);
   }
 
   _hasCustomOutputs(bo) {
     const raw = bo?.customOutputEvents || bo?.$attrs?.customOutputEvents;
-    if (!raw) return false;
-    if (Array.isArray(raw)) return raw.length > 0;
+    const events = this._parseEventArray(raw);
+
+    if (events.length > 0) {
+      return true;
+    }
+
+    if (this._isStart(bo)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  _isStart(bo) {
+    return bo && (bo.$type === 'bpmn:StartEvent' || bo.$attrs?.['data-task-type'] === 'start');
+  }
+
+  _parseEventArray(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+
     try {
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length > 0;
+      return Array.isArray(parsed) ? parsed : [];
     } catch (err) {
-      return false;
+      return [];
     }
   }
 }

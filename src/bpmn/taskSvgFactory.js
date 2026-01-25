@@ -17,7 +17,7 @@ export function createTaskSvg(typeKey, width = 100, height = 80, stringOutput = 
   const accentConfig = {
     userTask: { spine: '#42a5f5', bar: '#e3f2fd' },
     userGroupTask: { spine: '#5c6bc0', bar: '#e8eaf6', secondary: '#9fa8da' },
-    serviceTask: { spine: '#78909c', bar: '#eceff1' },
+    integrationWaitTask: { spine: '#673ab7', bar: '#d1c4e9', secondary: '#b39ddb' },
     apiCallTask: { spine: '#26c6da', bar: '#e0f7fa' },
     notificationNode: { spine: '#ffa726', bar: '#fff3e0', dark: '#ef6c00', light: '#ffe0b2' },
     decisionNode: { spine: '#ab47bc', bar: '#f3e5f5' }
@@ -48,7 +48,7 @@ export function createTaskSvg(typeKey, width = 100, height = 80, stringOutput = 
   const barData = {
     userTask: { x1: 40, w1: 50, x2: 40, w2: 35 },
     userGroupTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
-    serviceTask: { x1: 42, w1: 48, x2: 42, w2: 32 },
+    integrationWaitTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
     apiCallTask: { x1: 45, w1: 45, x2: 45, w2: 30 },
     notificationNode: { x1: 42, w1: 48, x2: 42, w2: 32 },
     decisionNode: { x1: 40, w1: 30, x2: 40, w2: 20, y1: 34, y2: 44 }
@@ -75,7 +75,7 @@ export function createTaskSvg(typeKey, width = 100, height = 80, stringOutput = 
 
   const iconGroup = svgCreate('g');
   if (typeKey === 'userTask') {
-    iconGroup.setAttribute('transform', 'translate(15, 15)');
+    iconGroup.setAttribute('transform', 'translate(15, 8)');
     const head = svgCreate('circle');
     head.setAttribute('cx', 10);
     head.setAttribute('cy', 7);
@@ -90,7 +90,7 @@ export function createTaskSvg(typeKey, width = 100, height = 80, stringOutput = 
     iconGroup.appendChild(head);
     iconGroup.appendChild(body);
   } else if (typeKey === 'userGroupTask') {
-    iconGroup.setAttribute('transform', 'translate(14, 15)');
+    iconGroup.setAttribute('transform', 'translate(14, 8)');
     const headBack = svgCreate('circle');
     headBack.setAttribute('cx', 15);
     headBack.setAttribute('cy', 7);
@@ -117,25 +117,60 @@ export function createTaskSvg(typeKey, width = 100, height = 80, stringOutput = 
     iconGroup.appendChild(bodyBack);
     iconGroup.appendChild(headFront);
     iconGroup.appendChild(bodyFront);
-  } else if (typeKey === 'serviceTask') {
-    iconGroup.setAttribute('transform', 'translate(15, 15)');
-    iconGroup.setAttribute('fill', 'none');
-    iconGroup.setAttribute('stroke', accent.spine);
-    iconGroup.setAttribute('stroke-width', 2.5);
-    const gearCircle = svgCreate('circle');
-    gearCircle.setAttribute('cx', 12);
-    gearCircle.setAttribute('cy', 12);
-    gearCircle.setAttribute('r', 5);
-    const gearPath = svgCreate('path');
-    gearPath.setAttribute(
-      'd',
-      'M12 2V5 M12 19V22 M2 12H5 M19 12H22 M4.9 4.9L7 7 M17 17L19.1 19.1 M4.9 19.1L7 17 M17 7L19.1 4.9'
-    );
-    gearPath.setAttribute('stroke-linecap', 'round');
-    iconGroup.appendChild(gearCircle);
-    iconGroup.appendChild(gearPath);
+  } else if (typeKey === 'integrationWaitTask') {
+    iconGroup.setAttribute('transform', 'translate(15, 8)');
+    iconGroup.setAttribute('stroke-linecap', 'round');
+
+    const mesh = svgCreate('path');
+    mesh.setAttribute('d', 'M 4,6 L 10,10 M 20,10 L 26,6 M 4,18 L 10,14 M 20,14 L 26,18');
+    mesh.setAttribute('stroke', accent.secondary);
+    mesh.setAttribute('stroke-width', 1.5);
+    iconGroup.appendChild(mesh);
+
+    const dotPositions = [
+      [3, 5],
+      [27, 5],
+      [3, 19],
+      [27, 19]
+    ];
+    dotPositions.forEach(([cx, cy]) => {
+      const dot = svgCreate('circle');
+      dot.setAttribute('cx', cx);
+      dot.setAttribute('cy', cy);
+      dot.setAttribute('r', 2);
+      dot.setAttribute('fill', accent.secondary);
+      iconGroup.appendChild(dot);
+    });
+
+    const hourglass = svgCreate('g');
+    hourglass.setAttribute('transform', 'translate(10, 4)');
+
+    const rails = svgCreate('path');
+    rails.setAttribute('d', 'M 2,0 H 10 M 2,16 H 10');
+    rails.setAttribute('stroke', accent.spine);
+    rails.setAttribute('stroke-width', 2);
+    hourglass.appendChild(rails);
+
+    const glass = svgCreate('path');
+    glass.setAttribute('d', 'M 2,0 L 6,8 L 2,16 M 10,0 L 6,8 L 10,16');
+    glass.setAttribute('fill', '#ede7f6');
+    glass.setAttribute('stroke', accent.spine);
+    glass.setAttribute('stroke-width', 2);
+    glass.setAttribute('stroke-linejoin', 'round');
+    hourglass.appendChild(glass);
+
+    const stem = svgCreate('line');
+    stem.setAttribute('x1', 6);
+    stem.setAttribute('y1', 8);
+    stem.setAttribute('x2', 6);
+    stem.setAttribute('y2', 11);
+    stem.setAttribute('stroke', accent.spine);
+    stem.setAttribute('stroke-width', 1.5);
+    hourglass.appendChild(stem);
+
+    iconGroup.appendChild(hourglass);
   } else if (typeKey === 'apiCallTask') {
-    iconGroup.setAttribute('transform', 'translate(15, 18)');
+    iconGroup.setAttribute('transform', 'translate(15, 10)');
     iconGroup.setAttribute('stroke', accent.spine);
     iconGroup.setAttribute('stroke-width', 2.5);
     iconGroup.setAttribute('stroke-linecap', 'round');
@@ -149,7 +184,7 @@ export function createTaskSvg(typeKey, width = 100, height = 80, stringOutput = 
     iconGroup.appendChild(path1);
     iconGroup.appendChild(path2);
   } else if (typeKey === 'notificationNode') {
-    iconGroup.setAttribute('transform', 'translate(16, 15)');
+    iconGroup.setAttribute('transform', 'translate(16, 8)');
     const bell = svgCreate('path');
     bell.setAttribute('d', 'M12 3A6 6 0 0 0 6 9v7l-3 3h18l-3-3V9a6 6 0 0 0-6-6z');
     bell.setAttribute('fill', accent.spine);

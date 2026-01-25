@@ -40,14 +40,14 @@ export const taskTypes = [
     color: '#d81b60'
   },
   {
-    key: 'serviceTask',
-    label: 'Service Task',
+    key: 'integrationWaitTask',
+    label: 'Integration Wait Task',
     type: 'bpmn:ServiceTask',
     icon: 'bpmn-icon-service-task',
-    wait: false,
-    outputs: '1 veya 2 (success/fail)',
-    event: 'Hayır (FlowData\'da)',
-    color: '#f59e0b'
+    wait: true,
+    outputs: 'N (event\'ler)',
+    event: 'Evet (WorkflowTaskEvents)',
+    color: '#673ab7'
   },
   {
     key: 'decisionNode',
@@ -78,6 +78,16 @@ export const taskTypes = [
     outputs: 'N (response mapping)',
     event: 'Hayır (FlowData\'da)',
     color: '#a3e635'
+  },
+  {
+    key: 'formObject',
+    label: 'Form Nesnesi',
+    type: 'bpmn:DataObjectReference',
+    icon: 'bpmn-icon-data-object',
+    wait: false,
+    outputs: '0',
+    event: 'Hayır',
+    color: '#FF7043'
   },
   {
     key: 'generateDocTask',

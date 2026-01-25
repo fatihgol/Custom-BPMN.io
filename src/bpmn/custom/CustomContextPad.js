@@ -8,13 +8,21 @@ const PALETTE_ICONS = {
   userTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="translate(2,1)"><circle cx="10" cy="7" r="6" fill="#42a5f5" stroke="none"/><path d="M 2,19 C 2,14 5,14 10,14 C 15,14 18,14 18,19" stroke="#42a5f5" stroke-width="3" fill="none" stroke-linecap="round"/></g></svg>`,
   userGroupTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="translate(1,1)"><circle cx="15" cy="7" r="5" fill="#9fa8da" opacity="0.7" stroke="none"/><path d="M 9,18 C 9,14 12,14 15,14 C 18,14 21,14 21,18" stroke="#9fa8da" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/><circle cx="8" cy="9" r="6" fill="#5c6bc0" stroke="none"/><path d="M 0,21 C 0,16 3,16 8,16 C 13,16 16,16 16,21" stroke="#5c6bc0" stroke-width="3" fill="none" stroke-linecap="round"/></g></svg>`,
   externalUserTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="translate(2, 2)"><circle cx="6" cy="6" r="4" stroke="none" fill="#d81b60"/><path d="M 2,16 C 2,12 4,12 6,12 C 8,12 10,12 10,16" stroke="#d81b60" stroke-width="2" fill="none" stroke-linecap="round"/><g transform="translate(8, 8)"><circle cx="5" cy="5" r="4" fill="none" stroke="#d81b60" stroke-width="1.5"/><path d="M 1,5 H 9" stroke="#d81b60" stroke-width="1.5"/><path d="M 5,1 C 7,1 7,9 5,9 M 5,1 C 3,1 3,9 5,9" fill="none" stroke="#d81b60" stroke-width="1.5"/></g></g></svg>`,
-  serviceTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#78909c" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 2V5 M12 19V22 M2 12H5 M19 12H22 M4.9 4.9L7 7 M17 17L19.1 19.1 M4.9 19.1L7 17 M17 7L19.1 4.9"/></svg>`,
+  integrationWaitTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g stroke="#673ab7" stroke-width="1" opacity="0.6"><line x1="4" y1="5" x2="10" y2="10"/><line x1="20" y1="5" x2="14" y2="10"/><line x1="4" y1="19" x2="10" y2="14"/><line x1="20" y1="19" x2="14" y2="14"/></g><circle cx="3" cy="4" r="1.5" fill="#673ab7" stroke="none"/><circle cx="21" cy="4" r="1.5" fill="#673ab7" stroke="none"/><circle cx="3" cy="20" r="1.5" fill="#673ab7" stroke="none"/><circle cx="21" cy="20" r="1.5" fill="#673ab7" stroke="none"/><g stroke="#673ab7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M 9,6 H 15" stroke-width="2"/><path d="M 9,18 H 15" stroke-width="2"/><path d="M 9,6 L 12,11 L 9,18 M 15,6 L 12,11 L 15,18"/></g></svg>`,
   apiCallTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="#26c6da" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><g transform="translate(0,1)"><path d="M 2,8 L 18,8 M 14,4 L 18,8 L 14,12"/><path d="M 22,16 L 6,16 M 10,20 L 6,16 L 10,12"/></g></svg>`,
   notificationNode: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3A6 6 0 0 0 6 9v7l-3 3h18l-3-3V9a6 6 0 0 0-6-6z" fill="#ffa726" stroke="none"/><path d="M9 21h6a3 3 0 0 1-6 0z" fill="#ef6c00" stroke="none"/></svg>`,
   decisionNode: `<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><filter id="shadow-gate" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#ab47bc" flood-opacity="0.2"/></filter></defs><rect x="16" y="16" width="48" height="48" rx="4" transform="rotate(45 40 40)" fill="#ffffff" stroke="#ab47bc" stroke-width="3" filter="url(#shadow-gate)" /><g transform="translate(29, 24)" stroke="#ab47bc" stroke-width="2" fill="none"><rect x="0" y="0" width="22" height="20" rx="2" fill="none"/><line x1="0" y1="6" x2="22" y2="6" stroke-width="1.5"/><line x1="0" y1="13" x2="22" y2="13" stroke-width="1"/><line x1="8" y1="0" x2="8" y2="20" stroke-width="1.5"/><circle cx="4" cy="10" r="1.5" fill="#ab47bc" stroke="none"/><circle cx="15" cy="10" r="1.5" fill="#ab47bc" stroke="none"/><circle cx="4" cy="17" r="1.5" fill="#ab47bc" stroke="none"/></g><rect x="30" y="52" width="20" height="3" rx="1.5" fill="#f3e5f5"/></svg>`,
   generateDocTask: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="translate(2, 1)"><path d="M3 1h9l5 5v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z" fill="none" stroke="#009688" stroke-width="2" stroke-linejoin="round"/><path d="M12 1v5h5" fill="none" stroke="#009688" stroke-width="2" stroke-linejoin="round"/><rect x="6" y="11" width="8" height="6" rx="1" fill="none" stroke="#009688" stroke-width="1.5" stroke-dasharray="1.5"/><path d="M 0,14 H 5" stroke="#009688" stroke-width="2" stroke-linecap="round"/><path d="M 3,12 L 5,14 L 3,16" fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
+  formObject: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="none" stroke="#FF7043" stroke-width="2" stroke-linejoin="round"/><path d="M 3,7 H 21" stroke="#FF7043" stroke-width="2"/><g transform="translate(0, 2)"><rect x="6" y="10" width="4" height="4" rx="0.5" fill="none" stroke="#FF7043" stroke-width="1.5"/><line x1="12" y1="12" x2="18" y2="12" stroke="#FF7043" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="17" x2="18" y2="17" stroke="#FF7043" stroke-width="2" stroke-linecap="round"/></g></svg>`,
   callActivity: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="translate(2, 2)"><rect x="1" y="2" width="18" height="16" rx="3" fill="none" stroke="#3949ab" stroke-width="2"/><path d="M 10,6 V 14 M 6,10 H 14" stroke="#3949ab" stroke-width="2" stroke-linecap="round"/><circle cx="1" cy="10" r="1" fill="#3949ab" stroke="none"/><circle cx="19" cy="10" r="1" fill="#3949ab" stroke="none"/></g></svg>`
 };
+
+const DEFAULT_USER_TASK_EVENTS = [
+  { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
+  { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
+];
+
+const DEFAULT_START_EVENTS = [{ name: 'Gönder', key: 'send', icon: 'paper-plane', color: '#22c55e' }];
 
 const toDataUrl = (svgString) => `data:image/svg+xml;utf8,${encodeURIComponent(svgString.replace(/\s+/g, ' ').trim())}`;
 
@@ -42,8 +50,6 @@ export default class CustomContextPad extends ContextPadProvider {
     ];
     keysToRemove.forEach(key => delete actions[key]);
 
-    keysToRemove.forEach(key => delete actions[key]);
-
     // Restrict context pad for Connections (SequenceFlow)
     // Only allow Delete and TextAnnotation
     if (element.type === 'bpmn:SequenceFlow') {
@@ -54,11 +60,6 @@ export default class CustomContextPad extends ContextPadProvider {
         }
       });
       return actions;
-    }
-
-    // Strict rule for StartEvent: Only 1 outgoing connection allowed
-    if (element.type === 'bpmn:StartEvent' && element.outgoing && element.outgoing.length >= 1) {
-      delete actions.connect;
     }
 
     // EndEvent should NOT have outgoing connections
@@ -74,14 +75,17 @@ export default class CustomContextPad extends ContextPadProvider {
       const bo = element.businessObject;
       const isUserTask = bo && (
         bo.$type === 'bpmn:UserTask' ||
-        (bo.$attrs && bo.$attrs['data-task-type'] === 'userTask')
+        (bo.$attrs && (bo.$attrs['data-task-type'] === 'userTask' || bo.$attrs['data-task-type'] === 'externalUserTask'))
+      );
+      const isIntegrationWaitTask = bo && (
+        bo.$attrs && (bo.$attrs['data-task-type'] === 'integrationWaitTask' || bo.$attrs['data-task-type'] === 'serviceTask')
       );
       const isUserGroupTask = bo && (
         (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
       );
 
       // ALWAYS remove standard connect for UserTask/UserGroupTask or if events exist
-      if (isUserTask || isUserGroupTask || (events && events.length > 0)) {
+      if (isUserTask || isIntegrationWaitTask || isUserGroupTask || (events && events.length > 0)) {
         delete actions.connect;
       }
 
@@ -256,16 +260,23 @@ export default class CustomContextPad extends ContextPadProvider {
   }
 
   _isTask(element) {
-    return isAny(element, ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask', 'bpmn:SendTask', 'bpmn:ExclusiveGateway']);
+    return isAny(element, ['bpmn:Task', 'bpmn:UserTask', 'bpmn:ServiceTask', 'bpmn:SendTask', 'bpmn:ExclusiveGateway', 'bpmn:StartEvent']);
   }
 
   _getOutputs(bo) {
     const raw = bo?.customOutputEvents || bo?.$attrs?.customOutputEvents;
 
+    const isStartEvent = bo && (
+      bo.$type === 'bpmn:StartEvent' ||
+      (bo.$attrs && bo.$attrs['data-task-type'] === 'start')
+    );
     // Check if this is a UserTask or UserGroupTask (based on attributes or type)
     const isUserTask = bo && (
       bo.$type === 'bpmn:UserTask' ||
-      (bo.$attrs && bo.$attrs['data-task-type'] === 'userTask')
+      (bo.$attrs && (bo.$attrs['data-task-type'] === 'userTask' || bo.$attrs['data-task-type'] === 'externalUserTask'))
+    );
+    const isIntegrationWaitTask = bo && (
+      bo.$attrs && (bo.$attrs['data-task-type'] === 'integrationWaitTask' || bo.$attrs['data-task-type'] === 'serviceTask')
     );
     const isUserGroupTask = bo && (
       (bo.$attrs && bo.$attrs['data-task-type'] === 'userGroupTask')
@@ -282,24 +293,19 @@ export default class CustomContextPad extends ContextPadProvider {
       return this._getDecisionOutputs(bo, isApiTask);
     }
 
-    // Return default events for UserTask and UserGroupTask if no custom events found
-    let events = null;
-    if (isUserTask || isUserGroupTask) {
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            events = parsed;
-          }
-        } catch (e) { }
-      }
+    const parsedEvents = this._parseEventArray(raw);
 
-      if (!events) {
-        events = [
-          { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
-          { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
-        ];
-      }
+    if (isStartEvent) {
+      return parsedEvents.length > 0
+        ? parsedEvents
+        : DEFAULT_START_EVENTS.map((event) => ({ ...event }));
+    }
+
+    // Return default events for UserTask and UserGroupTask if no custom events found
+    if (isUserTask || isUserGroupTask || isIntegrationWaitTask) {
+      let events = parsedEvents.length > 0
+        ? parsedEvents
+        : DEFAULT_USER_TASK_EVENTS.map((event) => ({ ...event }));
 
       // Check for Timeout Event
       const timeoutEnabled = bo.$attrs && (bo.$attrs['data-timeout-enabled'] === 'true' || bo.$attrs['data-timeout-enabled'] === true);
@@ -320,18 +326,23 @@ export default class CustomContextPad extends ContextPadProvider {
       return events;
     }
 
-    // For other tasks (fallback to normal logic)
-    if (raw) {
-      if (Array.isArray(raw) && raw.length > 0) return raw;
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      } catch (err) { }
+    if (parsedEvents.length > 0) {
+      return parsedEvents;
     }
 
     return null;
+  }
+
+  _parseEventArray(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
   }
 
   _getDecisionOutputs(bo, isApiTask = false) {

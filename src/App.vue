@@ -87,13 +87,26 @@
         </button>
 
         <button
-          class="palette-entry service-task"
-          title="Servis Görevi"
-          @mousedown.prevent="(e) => startPaletteAction('serviceTask', e)"
+          class="palette-entry integration-wait"
+          title="Entegrasyon Bekle"
+          @mousedown.prevent="(e) => startPaletteAction('integrationWaitTask', e)"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 2V5 M12 19V22 M2 12H5 M19 12H22 M4.9 4.9L7 7 M17 17L19.1 19.1 M4.9 19.1L7 17 M17 7L19.1 4.9" />
+          <svg viewBox="0 0 24 24">
+            <g stroke="currentColor" stroke-width="1" opacity="0.6">
+              <line x1="4" y1="5" x2="10" y2="10" />
+              <line x1="20" y1="5" x2="14" y2="10" />
+              <line x1="4" y1="19" x2="10" y2="14" />
+              <line x1="20" y1="19" x2="14" y2="14" />
+            </g>
+            <circle cx="3" cy="4" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="21" cy="4" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="3" cy="20" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="21" cy="20" r="1.5" fill="currentColor" stroke="none" />
+            <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <path d="M 9,6 H 15" stroke-width="2" />
+              <path d="M 9,18 H 15" stroke-width="2" />
+              <path d="M 9,6 L 12,11 L 9,18 M 15,6 L 12,11 L 15,18" />
+            </g>
           </svg>
         </button>
 
@@ -135,6 +148,26 @@
 
               <path d="M 0,14 H 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M 3,12 L 5,14 L 3,16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>
+        </button>
+
+        <button
+          class="palette-entry form-object"
+          title="Form Nesnesi"
+          @mousedown.prevent="(e) => startPaletteAction('formObject', e)"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linejoin="round"/>
+            <path d="M 3,7 H 21" stroke="currentColor" stroke-width="2"/>
+            <g transform="translate(0, 2)">
+              <rect x="6" y="10" width="4" height="4" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="12" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="6" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </g>
           </svg>
         </button>
@@ -225,6 +258,34 @@
                   {{ opt.label }}
                 </option>
               </select>
+            </template>
+            <template v-else-if="field.type === 'events-table'">
+              <div class="events-table-wrapper">
+                <table class="events-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Key</th>
+                      <th>Icon/Color</th>
+                      <th style="width: 40px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, idx) in formState.fields[field.key]" :key="idx">
+                      <td><input type="text" v-model="item.name" placeholder="Onayla" /></td>
+                      <td><input type="text" v-model="item.key" placeholder="approve" /></td>
+                      <td>
+                        <div style="display: flex; gap: 4px;">
+                          <input type="text" v-model="item.icon" placeholder="check" style="flex: 1;" />
+                          <input type="color" v-model="item.color" style="width: 30px; height: 30px; padding: 2px;" />
+                        </div>
+                      </td>
+                      <td><button class="icon-btn delete" @click="removeEvent(field.key, idx)">🗑️</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button type="button" class="secondary small" @click="addEvent(field.key)">+ Add Event</button>
+              </div>
             </template>
             <template v-else-if="field.type === 'key-value-table'">
               <div class="events-table-wrapper">
@@ -318,7 +379,8 @@ const ELEMENT_MAPPING = {
   'bpmn:Task': { 'data-task-type': 'userTask' },
   'bpmn:Task': { 'data-task-type': 'userTask' },
   'bpmn:Task': { 'data-task-type': 'userTask' },
-  'bpmn:ServiceTask': { 'data-task-type': ['serviceTask', 'apiCallTask', 'generateDocTask', 'callActivity'] },
+  'bpmn:ServiceTask': { 'data-task-type': ['integrationWaitTask', 'apiCallTask', 'generateDocTask', 'callActivity'] },
+  'bpmn:DataObjectReference': { 'data-task-type': 'formObject' },
   'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
   'bpmn:ExclusiveGateway': { 'data-task-type': 'decisionNode' },
@@ -333,28 +395,50 @@ const baseFields = [
   { key: 'metadata-category', label: 'Kategori', type: 'text' }
 ];
 
+const DEFAULT_USER_TASK_EVENTS = [
+  { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
+  { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
+];
+
+const DEFAULT_START_EVENTS = [{ name: 'Gönder', key: 'send', icon: 'paper-plane', color: '#1d4ed8' }];
+
+const userTaskFields = [
+  { key: 'assignment-type', label: 'Atama Tipi', type: 'text' },
+  { key: 'assignment-value', label: 'Atama Değeri', type: 'text' },
+  { key: 'form-key', label: 'Form Key', type: 'text' },
+  { key: 'priority', label: 'Öncelik', type: 'text' },
+  { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
+  { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
+  { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
+  {
+    key: 'timeout-action',
+    label: 'Timeout Aksiyonu',
+    type: 'select',
+    options: [
+      { value: 'reminder', label: 'Hatırlatma' },
+      { value: 'event', label: 'Event Çağırma' }
+    ]
+  },
+  ...baseFields
+];
+
+const getBoAttr = (bo, key) => {
+  if (!bo) return undefined;
+  if (typeof bo.get === 'function') {
+    const value = bo.get(key);
+    if (value !== undefined) return value;
+  }
+  return bo.$attrs?.[key];
+};
+
 const fieldDefs = {
-  start: [...baseFields],
-  end: [...baseFields, { key: 'end-type', label: 'End Tipi', type: 'text' }],
-  userTask: [
-    { key: 'assignment-type', label: 'Atama Tipi', type: 'text' },
-    { key: 'assignment-value', label: 'Atama Değeri', type: 'text' },
-    { key: 'form-key', label: 'Form Key', type: 'text' },
-    { key: 'priority', label: 'Öncelik', type: 'text' },
+  start: [
     { key: 'customOutputEvents', label: 'Events', type: 'events-table' },
-    { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
-    { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
-    { 
-      key: 'timeout-action', 
-      label: 'Timeout Aksiyonu', 
-      type: 'select',
-      options: [
-        { value: 'reminder', label: 'Hatırlatma' },
-        { value: 'event', label: 'Event Çağırma' }
-      ]
-    },
     ...baseFields
   ],
+  end: [...baseFields, { key: 'end-type', label: 'End Tipi', type: 'text' }],
+  userTask: userTaskFields,
+  integrationWaitTask: userTaskFields,
   userGroupTask: [
     { key: 'assignment-type', label: 'Atama Tipi', type: 'text' },
     { key: 'assignment-value', label: 'Atama Değeri', type: 'text' },
@@ -394,21 +478,6 @@ const fieldDefs = {
         { value: 'event', label: 'Event Çağırma' }
       ]
     },
-    ...baseFields
-  ],
-  serviceTask: [
-    { key: 'service-type', label: 'Servis Tipi', type: 'text' },
-    { key: 'service-name', label: 'Servis Adı', type: 'text' },
-    { key: 'service-method', label: 'Metot', type: 'text' },
-    { key: 'service-params', label: 'Parametreler', type: 'textarea' },
-    { key: 'service-result-variable', label: 'Result Variable', type: 'text' },
-    { key: 'timeout-enabled', label: 'Timeout Aktif', type: 'checkbox' },
-    { key: 'timeout-duration', label: 'Timeout Süresi (ISO 8601)', type: 'text' },
-    { key: 'timeout-action', label: 'Timeout Aksiyonu', type: 'text' },
-    { key: 'timeout-output-way', label: 'Timeout Output Way', type: 'text' },
-    { key: 'retry-enabled', label: 'Retry Aktif', type: 'checkbox' },
-    { key: 'retry-max-attempts', label: 'Retry Maks Deneme', type: 'text' },
-    { key: 'retry-backoff-type', label: 'Backoff Tipi', type: 'text' },
     ...baseFields
   ],
   apiCallTask: [
@@ -452,7 +521,13 @@ const fieldDefs = {
       ]
     },
     { key: 'doc-data-source', label: 'Veri Kaynağı (JSON/Var)', type: 'textarea' },
-    { key: 'doc-data-source', label: 'Veri Kaynağı (JSON/Var)', type: 'textarea' },
+    ...baseFields
+  ],
+  formObject: [
+    { key: 'form-id', label: 'Form ID', type: 'text' },
+    { key: 'form-schema', label: 'JSON Schema (Opsiyonel)', type: 'textarea' },
+    { key: 'form-submit-text', label: 'Submit Buton Yazısı', type: 'text' },
+    { key: 'is-read-only', label: 'Sadece Okunur', type: 'checkbox' },
     ...baseFields
   ],
   callActivity: [
@@ -463,10 +538,6 @@ const fieldDefs = {
     ...baseFields
   ],
   decisionNode: [
-    { key: 'decision-rules', label: 'Kurallar (If / Else If)', type: 'decision-table' },
-    ...baseFields
-  ],
-  notificationNode: [
     { key: 'decision-rules', label: 'Kurallar (If / Else If)', type: 'decision-table' },
     ...baseFields
   ],
@@ -485,13 +556,13 @@ const fieldDefs = {
 const initialXml = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Start" data-task-type="start">
+    <bpmn:startEvent id="StartEvent_1" name="Start" data-task-type="start" data-customOutputEvents='[{"name":"Gönder","key":"send","icon":"paper-plane","color":"#1d4ed8"}]'>
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent_1" name="End" data-task-type="end">
       <bpmn:incoming>Flow_1</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="EndEvent_1" />
+    <bpmn:sequenceFlow id="Flow_1" name="Gönder" sourceRef="StartEvent_1" targetRef="EndEvent_1" data-event-key="send" data-event-icon="paper-plane" data-event-color="#1d4ed8" data-connection-type="event" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
@@ -520,6 +591,7 @@ const resetDiagram = async () => {
   await modeler.value.importXML(initialXml);
   applyTaskTypeDefaults();
   refreshGraphics();
+  applyEventColorsToConnections();
 };
 
 const downloadDiagram = async () => {
@@ -541,6 +613,7 @@ const uploadDiagram = async (event) => {
   await modeler.value.importXML(text);
   applyTaskTypeDefaults();
   refreshGraphics();
+  applyEventColorsToConnections();
   event.target.value = '';
 };
 
@@ -553,6 +626,10 @@ const applyTaskTypeDefaults = () => {
     if (el.type === 'label') return;
 
     const bo = el.businessObject;
+    const currentType = bo.$attrs?.['data-task-type'] || (bo.get && bo.get('data-task-type'));
+    if (currentType === 'serviceTask') {
+      modeling.updateProperties(el, { 'data-task-type': 'integrationWaitTask' });
+    }
     const existing = (bo.get && bo.get('data-task-type')) || bo.$attrs?.['data-task-type'];
     if (existing) return;
 
@@ -561,7 +638,7 @@ const applyTaskTypeDefaults = () => {
       'bpmn:EndEvent': 'end',
       'bpmn:UserTask': 'userTask',
       'bpmn:Task': 'userTask',
-      'bpmn:ServiceTask': 'serviceTask',
+      'bpmn:ServiceTask': 'integrationWaitTask',
       'bpmn:ExclusiveGateway': 'decisionNode',
       'bpmn:SendTask': 'notificationNode'
     };
@@ -592,6 +669,22 @@ const refreshGraphics = () => {
   });
 };
 
+const applyEventColorsToConnections = () => {
+  if (!modeler.value) return;
+  const modeling = modeler.value.get('modeling');
+  if (!modeling || typeof modeling.setColor !== 'function') return;
+  const elementRegistry = modeler.value.get('elementRegistry');
+  if (!elementRegistry) return;
+
+  elementRegistry.getAll().forEach((el) => {
+    if (el.type !== 'bpmn:SequenceFlow') return;
+    const color = getBoAttr(el.businessObject, 'data-event-color');
+    if (color) {
+      modeling.setColor(el, { stroke: color });
+    }
+  });
+};
+
 onMounted(async () => {
   modeler.value = new BpmnModeler({
     container: bpmnContainer.value,
@@ -617,6 +710,7 @@ onMounted(async () => {
   await modeler.value.importXML(initialXml);
   applyTaskTypeDefaults();
   refreshGraphics();
+  applyEventColorsToConnections();
 
   const canvas = modeler.value.get('canvas');
   canvas.zoom('fit-viewport');
@@ -671,6 +765,9 @@ const startPaletteAction = (taskKey, event) => {
   if (taskKey === 'decisionNode') {
     options.width = 80;
     options.height = 80;
+  } else if (taskKey === 'formObject') {
+    options.width = 40;
+    options.height = 50;
   }
   const shape = services.value.elementFactory.createShape(options);
   services.value.create.start(event, shape);
@@ -698,10 +795,68 @@ const resetZoom = () => {
   canvas.zoom('fit-viewport');
 };
 
+const syncConnectionStyles = (element, events, modeling) => {
+  if (!element || !modeling || !Array.isArray(events) || events.length === 0) return false;
+
+  const eventMap = new Map();
+  events.forEach((evt) => {
+    if (evt && evt.key) {
+      eventMap.set(evt.key, evt);
+    }
+  });
+  if (!eventMap.size) return false;
+
+  const outgoing = element.outgoing || [];
+  let anyUpdated = false;
+  outgoing.forEach((connection) => {
+    const bo = connection.businessObject;
+    const eventKey = getBoAttr(bo, 'data-event-key');
+    if (!eventKey || !eventMap.has(eventKey)) return;
+
+    const def = eventMap.get(eventKey);
+    const updates = {};
+    let changed = false;
+
+    if (def.name && bo.name !== def.name) {
+      updates.name = def.name;
+      changed = true;
+    }
+
+    const currentIcon = getBoAttr(bo, 'data-event-icon');
+    if (def.icon && currentIcon !== def.icon) {
+      updates['data-event-icon'] = def.icon;
+      changed = true;
+    }
+
+    const currentColor = getBoAttr(bo, 'data-event-color');
+    if (def.color && currentColor !== def.color) {
+      updates['data-event-color'] = def.color;
+      changed = true;
+    }
+
+    if (!changed) return;
+
+    modeling.updateProperties(connection, updates);
+
+    if (def.color && typeof modeling.setColor === 'function') {
+      modeling.setColor(connection, { stroke: def.color });
+    }
+
+    anyUpdated = true;
+  });
+
+  return anyUpdated;
+};
+
 // eski fieldDefs kaldırıldı; doküman tabanlı fieldDefs yukarıda tanımlı
 
 const openModal = (element) => {
-  const taskKey = (element.businessObject.get && element.businessObject.get('data-task-type')) || element.businessObject.$attrs?.['data-task-type'];
+  let taskKey = (element.businessObject.get && element.businessObject.get('data-task-type')) || element.businessObject.$attrs?.['data-task-type'];
+  if (taskKey === 'serviceTask') {
+    taskKey = 'integrationWaitTask';
+    const modeling = modeler.value?.get('modeling');
+    modeling?.updateProperties(element, { 'data-task-type': taskKey });
+  }
   modalElement.value = element;
   modalElementId.value = element.id;
   formState.value = {
@@ -729,12 +884,17 @@ const loadCustomFields = (element, taskKey) => {
         acc[field.key] = [];
       }
       
-      // Add default events for UserTask and UserGroupTask if empty
-      if ((field.type === 'events-table') && (taskKey === 'userTask' || taskKey === 'userGroupTask') && acc[field.key].length === 0) {
-        acc[field.key] = [
-          { name: 'Onayla', key: 'approve', icon: 'check', color: '#10b981' },
-          { name: 'Reddet', key: 'reject', icon: 'times', color: '#ef4444' }
-        ];
+      if (field.type === 'events-table' && acc[field.key].length === 0) {
+        if (taskKey === 'start') {
+          acc[field.key] = DEFAULT_START_EVENTS.map((item) => ({ ...item }));
+        } else if (
+          taskKey === 'userTask' ||
+          taskKey === 'userGroupTask' ||
+          taskKey === 'externalUserTask' ||
+          taskKey === 'integrationWaitTask'
+        ) {
+          acc[field.key] = DEFAULT_USER_TASK_EVENTS.map((item) => ({ ...item }));
+        }
       }
     } else {
       acc[field.key] = val || '';
@@ -773,12 +933,14 @@ const removeEvent = (fieldKey, idx) => {
 const saveModal = () => {
   if (!modalElement.value || !modeler.value) return;
   const modeling = modeler.value.get('modeling');
+
   const elementRegistry = modeler.value.get('elementRegistry');
   const { name, taskKey, fields } = formState.value;
 
   const element = modalElementId.value ? elementRegistry.get(modalElementId.value) : toRaw(modalElement.value);
   if (!element) return;
   const props = { name };
+  let customEventsPayload = null;
 
   (fieldDefs[taskKey] || []).forEach((field) => {
     const key = `data-${field.key}`;
@@ -787,7 +949,11 @@ const saveModal = () => {
     if (field.type === 'checkbox') {
       val = val ? 'true' : 'false';
     } else if (field.type === 'events-table' || field.type === 'decision-table' || field.type === 'key-value-table') {
-      val = val && val.length > 0 ? JSON.stringify(val) : '';
+      const fieldValue = fields[field.key];
+      if (field.type === 'events-table' && field.key === 'customOutputEvents' && Array.isArray(fieldValue)) {
+        customEventsPayload = fieldValue;
+      }
+      val = fieldValue && fieldValue.length > 0 ? JSON.stringify(fieldValue) : '';
     }
     
     props[key] = val ?? '';
@@ -798,6 +964,13 @@ const saveModal = () => {
   });
 
   modeling.updateProperties(element, props);
+  const updatedConnections =
+    customEventsPayload && customEventsPayload.length > 0
+      ? syncConnectionStyles(element, customEventsPayload, modeling)
+      : false;
+  if (updatedConnections) {
+    refreshGraphics();
+  }
 
   showModal.value = false;
   modalElement.value = null;
