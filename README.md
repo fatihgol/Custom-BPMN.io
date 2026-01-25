@@ -1,6 +1,6 @@
 # BPMN Editör (Vue 3 + bpmn-js)
 
-Örnek Vue 3 projesi; bpmn-js ile özel task paleti barındıran BPMN editör.
+Örnek Vue 3 projesi; bpmn-js ile özel task paleti, kontekst menüsü ve event bağlantı mantığına sahip modern BPMN editörü.
 
 ## Kurulum
 
@@ -18,9 +18,16 @@ Uygulama varsayılan olarak `http://localhost:5173` adresinde çalışır.
 - Başlangıç diyagramı hazır gelir, XML içe/dışa aktarma butonları mevcuttur.
 - Modal üzerinden çift tıklayarak dokümandaki tüm `data-*` alanları düzenleyebilirsiniz; alanlar tip bazlı gösterilir.
 
-## Ekran Görüntüsü
+## Ekran Görselleri
 
-![BPMN Editör](./canvas.png)
+> Tüm görseller `assets/images` klasöründedir, aşağıda en kritik akışlar özetlendi.
+
+| Önizleme | Açıklama |
+| --- | --- |
+| ![Canvas](assets/images/canvas.png) | Ana kanvas, özel palet ve zoom kontrolleri |
+| ![Context Pad](assets/images/contextPad.png) | Her task için özelleştirilmiş context-pad aksiyonları |
+| ![Modal](assets/images/modal.png) | Çift tıklama ile açılan dinamik özellik modali |
+| ![Event Switch](assets/images/eventChangePopup.png) | Bağlantı üzerindeki event değişim popup’ı |
 
 ## Notlar
 

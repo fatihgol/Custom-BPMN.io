@@ -689,7 +689,6 @@ onMounted(async () => {
   modeler.value = new BpmnModeler({
     container: bpmnContainer.value,
     keyboard: { bindTo: window },
-    bpmnRenderer: { defaultFillColor: '#fff', defaultStrokeColor: '#000' },
     additionalModules: [
       {
         paletteProvider: ['value', null],

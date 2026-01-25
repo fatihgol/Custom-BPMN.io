@@ -77,10 +77,22 @@ const renderInlineLabel = (parentNode, text, x, y, maxWidth = 80) => {
 };
 
 export default class CustomRenderer extends BaseRenderer {
-  constructor(eventBus, bpmnRenderer) {
+  constructor(eventBus, bpmnRenderer, canvas, elementRegistry) {
     super(eventBus, HIGH_PRIORITY);
     this.bpmnRenderer = bpmnRenderer;
+    this.canvas = canvas;
+    this.elementRegistry = elementRegistry;
+    this._bridgeLayer = null;
+    this._bridgeUpdateScheduled = false;
     console.log('CustomRenderer init');
+
+    const schedule = () => this._scheduleBridgeUpdate();
+    eventBus.on('diagram.clear', () => this._clearBridgeLayer());
+    eventBus.on(['connection.added', 'connection.changed', 'connection.removed'], schedule);
+    eventBus.on('commandStack.connection.updateWaypoints.executed', schedule);
+    eventBus.on('elements.changed', ({ elements }) => {
+      if (elements?.some((el) => el.type === 'bpmn:SequenceFlow')) schedule();
+    });
   }
 
   canRender(element) {
@@ -1039,12 +1051,205 @@ export default class CustomRenderer extends BaseRenderer {
       // Apply custom color or default
       path.setAttribute('stroke', customColor || '#94a3b8');
     }
+    this._scheduleBridgeUpdate();
     return connection;
   }
 
   getShapePath(shape) {
     return this.bpmnRenderer.getShapePath(shape);
   }
+
+  _scheduleBridgeUpdate() {
+    if (this._bridgeUpdateScheduled) return;
+    this._bridgeUpdateScheduled = true;
+    requestAnimationFrame(() => {
+      this._bridgeUpdateScheduled = false;
+      this._updateBridgeOverlays();
+    });
+  }
+
+  _ensureBridgeLayer() {
+    if (this._bridgeLayer) return this._bridgeLayer;
+    let parent = null;
+    if (this.canvas.getLayer) {
+      const connectionLayer = this.canvas.getLayer('connections');
+      parent = connectionLayer?.parentNode;
+    }
+    if (!parent) {
+      parent = this.canvas._svg?.querySelector('.djs-viewport');
+    }
+    if (!parent) return null;
+    this._bridgeLayer = svgCreate('g');
+    this._bridgeLayer.classList.add('djs-connection-bridges');
+    svgAppend(parent, this._bridgeLayer);
+    return this._bridgeLayer;
+  }
+
+  _clearBridgeLayer() {
+    if (!this._bridgeLayer) return;
+    while (this._bridgeLayer.firstChild) {
+      this._bridgeLayer.removeChild(this._bridgeLayer.firstChild);
+    }
+  }
+
+  _updateBridgeOverlays() {
+    const layer = this._ensureBridgeLayer();
+    if (!layer) return;
+
+    while (layer.firstChild) {
+      layer.removeChild(layer.firstChild);
+    }
+
+    const connections = this.elementRegistry.filter(
+      (el) => el.type === 'bpmn:SequenceFlow' && el.waypoints?.length >= 2
+    );
+
+    for (let i = 0; i < connections.length; i += 1) {
+      for (let j = i + 1; j < connections.length; j += 1) {
+        this._applyBridge(connections[i], connections[j], layer);
+      }
+    }
+  }
+
+  _applyBridge(connA, connB, layer) {
+    const intersections = this._computeWaypointIntersections(connA.waypoints, connB.waypoints);
+    if (!intersections.length) return;
+
+    const gfxA = this.canvas.getGraphics(connA);
+    const gfxB = this.canvas.getGraphics(connB);
+    if (!gfxA || !gfxB) return;
+
+    const topConn = this._isAboveInDom(gfxA, gfxB) ? connA : connB;
+    const stroke = this._getConnectionStroke(topConn) || '#94a3b8';
+
+    intersections.forEach((info) => {
+      const node = this._createBridgeNode(info, stroke);
+      if (node) {
+        svgAppend(layer, node);
+      }
+    });
+  }
+
+  _isAboveInDom(gfxA, gfxB) {
+    if (!gfxA || !gfxB) return false;
+    const parent = gfxA.parentNode;
+    if (parent && parent === gfxB.parentNode) {
+      const children = Array.from(parent.children);
+      return children.indexOf(gfxA) > children.indexOf(gfxB);
+    }
+    const pos = gfxA.compareDocumentPosition(gfxB);
+    return !!(pos & Node.DOCUMENT_POSITION_FOLLOWING);
+  }
+
+  _getConnectionStroke(connection) {
+    const bo = connection.businessObject;
+    return (
+      bo?.get?.('data-event-color') ||
+      bo?.$attrs?.['data-event-color'] ||
+      this.canvas.getGraphics(connection)?.querySelector('path')?.getAttribute('stroke')
+    );
+  }
+
+  _computeWaypointIntersections(pointsA, pointsB) {
+    const intersections = [];
+    for (let i = 0; i < pointsA.length - 1; i += 1) {
+      const a1 = pointsA[i];
+      const a2 = pointsA[i + 1];
+      if (!this._isFinitePoint(a1) || !this._isFinitePoint(a2)) continue;
+      for (let j = 0; j < pointsB.length - 1; j += 1) {
+        const b1 = pointsB[j];
+        const b2 = pointsB[j + 1];
+        if (!this._isFinitePoint(b1) || !this._isFinitePoint(b2)) continue;
+        const hit = this._segmentIntersection(a1, a2, b1, b2);
+        if (hit) {
+          intersections.push(hit);
+        }
+      }
+    }
+    return intersections;
+  }
+
+  _isFinitePoint(pt) {
+    return pt && Number.isFinite(pt.x) && Number.isFinite(pt.y);
+  }
+
+  _segmentIntersection(a1, a2, b1, b2) {
+    const denom = (a1.x - a2.x) * (b1.y - b2.y) - (a1.y - a2.y) * (b1.x - b2.x);
+    if (Math.abs(denom) < 1e-6) return null;
+
+    const t =
+      ((a1.x - b1.x) * (b1.y - b2.y) - (a1.y - b1.y) * (b1.x - b2.x)) /
+      denom;
+    const u =
+      ((a1.x - b1.x) * (a1.y - a2.y) - (a1.y - b1.y) * (a1.x - a2.x)) /
+      denom;
+
+    if (t <= 0.05 || t >= 0.95 || u <= 0.05 || u >= 0.95) return null;
+
+    const x = a1.x + t * (a2.x - a1.x);
+    const y = a1.y + t * (a2.y - a1.y);
+
+    const dx = a2.x - a1.x;
+    const dy = a2.y - a1.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 1e-3) return null;
+
+    return {
+      x,
+      y,
+      ux: dx / len,
+      uy: dy / len
+    };
+  }
+
+  _createBridgeNode(info, strokeColor = '#94a3b8') {
+    const arcLength = 12;
+    const height = 8;
+    const half = arcLength / 2;
+    const startX = info.x - info.ux * half;
+    const startY = info.y - info.uy * half;
+    const endX = info.x + info.ux * half;
+    const endY = info.y + info.uy * half;
+    const normalX = -info.uy;
+    const normalY = info.ux;
+    const controlX = info.x + normalX * height;
+    const controlY = info.y + normalY * height;
+    const d = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+
+    const group = svgCreate('g');
+    group.setAttribute('pointer-events', 'none');
+
+    const base = svgCreate('path');
+    base.setAttribute('d', d);
+    base.setAttribute('fill', '#94a3b845');
+    base.setAttribute('stroke', '#ffffff');
+    base.setAttribute('stroke-width', 9);
+    base.setAttribute('stroke-linecap', 'round');
+    base.setAttribute('stroke-linejoin', 'round');
+    base.setAttribute('opacity', '0.9');
+
+    const inner = svgCreate('path');
+    inner.setAttribute('d', d);
+    inner.setAttribute('fill', 'none');
+    inner.setAttribute('stroke', strokeColor);
+    inner.setAttribute('stroke-width', 2.5);
+    inner.setAttribute('stroke-linecap', 'round');
+    inner.setAttribute('stroke-linejoin', 'round');
+
+    const accent = svgCreate('path');
+    accent.setAttribute(
+      'd',
+      `M ${startX} ${startY} L ${startX + info.ux * 4} ${startY + info.uy * 4} M ${endX - info.ux * 4} ${endY - info.uy * 4} L ${endX} ${endY}`
+    );
+    accent.setAttribute('stroke', '#0f172a10');
+    accent.setAttribute('stroke-width', 1.5);
+    accent.setAttribute('stroke-linecap', 'round');
+
+    svgAppend(group, base);
+    svgAppend(group, inner);
+    svgAppend(group, accent);
+    return group;
+  }
 }
 
-CustomRenderer.$inject = ['eventBus', 'bpmnRenderer'];
+CustomRenderer.$inject = ['eventBus', 'bpmnRenderer', 'canvas', 'elementRegistry'];
